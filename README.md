@@ -12,7 +12,7 @@ GJK Browscap Version Released: Wed, 19 Feb 2025 15:58:54 +0000
 
 # Impl
 
-Implemented in typescript. It is initializing an internal grammar's search tree at first invokation time, which takes a few seconds. Metadata is kept in memory afterwards. 
+Implemented in typescript. It is initializing an internal grammar's search tree at first invocation time, which takes a few seconds. Metadata is kept in memory afterwards. 
 ```
 Load patterns input file...
 Extracting json...
