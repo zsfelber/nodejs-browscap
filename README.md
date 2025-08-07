@@ -26,9 +26,14 @@ Valid: 10084 / 10339 98%
 matchers: 3.882s
 ```
 
-So the average matching time was 385μsec.
+So the average matching time was 385μsec (in debug mode, including logging).
 
 # Usage
+
+```
+npm i nodejs-browscap
+
+```
 
 ```
 
@@ -247,3 +252,13 @@ Records:
 }
 
 ```
+
+# Tests and execution times
+
+
+```
+cd node_modules/nodejs-browscap
+npm run init
+```
+
+Now, you are able to review memory consumption. (Open Task Manager / System Monitor / run 'top' in linux shell).
