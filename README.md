@@ -258,7 +258,7 @@ Records:
 
 ```
 cd node_modules/nodejs-browscap
-npm run init
+npm run test
 ```
 
 Now, you are able to review speed data and memory consumption. (Open Task Manager / System Monitor / run 'top' in linux shell).
