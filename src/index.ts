@@ -210,7 +210,7 @@ export interface BrowscapRecord {
 
 }
 
-class ParsedBrowscapMatcher {
+export class ParsedBrowscapMatcher {
     readonly patternTreeRootNoAsterix = new BrowscapMatcherNode(null,"");
     readonly reversePatternTreeRootNoAsterix = new BrowscapMatcherNode(null,"");
     readonly patternTreeRootBothAsterix = new BrowscapMatcherNode(null,"");

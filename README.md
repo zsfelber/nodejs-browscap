@@ -355,6 +355,77 @@ Runs tests.
 | `testBrowscap` | `() => Promise<void>` |
 
 
+## :factory: ParsedBrowscapMatcher
+
+### Methods
+
+- [extractJsonIfNotExists](#gear-extractjsonifnotexists)
+- [buildFromJson](#gear-buildfromjson)
+- [build](#gear-build)
+- [mergeProperties](#gear-mergeproperties)
+
+#### :gear: extractJsonIfNotExists
+
+| Method | Type |
+| ---------- | ---------- |
+| `extractJsonIfNotExists` | `() => void` |
+
+#### :gear: buildFromJson
+
+| Method | Type |
+| ---------- | ---------- |
+| `buildFromJson` | `() => void` |
+
+#### :gear: build
+
+| Method | Type |
+| ---------- | ---------- |
+| `build` | `(bodyRecords: BrowscapRecord[]) => void` |
+
+#### :gear: mergeProperties
+
+| Method | Type |
+| ---------- | ---------- |
+| `mergeProperties` | `(properties: BrowscapRecord) => BrowscapRecord` |
+
+### Properties
+
+- [header](#gear-header)
+- [headerComments](#gear-headercomments)
+- [defaultProperties](#gear-defaultproperties)
+- [parentProperties](#gear-parentproperties)
+- [built](#gear-built)
+
+#### :gear: header
+
+| Property | Type |
+| ---------- | ---------- |
+| `header` | `BrowscapHeader` |
+
+#### :gear: headerComments
+
+| Property | Type |
+| ---------- | ---------- |
+| `headerComments` | `string[]` |
+
+#### :gear: defaultProperties
+
+| Property | Type |
+| ---------- | ---------- |
+| `defaultProperties` | `BrowscapRecord` |
+
+#### :gear: parentProperties
+
+| Property | Type |
+| ---------- | ---------- |
+| `parentProperties` | `Map<string, BrowscapRecord>` |
+
+#### :gear: built
+
+| Property | Type |
+| ---------- | ---------- |
+| `built` | `boolean` |
+
 ## :factory: BrowscapMatchResult
 
 ### Methods
