@@ -1,14 +1,14 @@
 {
-  "name": "serpa",
+  "name": "nodejs-browscap",
   "version": "1.0.0",
-  "description": "chrome://inspect/#devices https://bot.dobiadi.dev/ https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-nodejs",
-  "homepage": "https://github.com/zsfelber/serpa#readme",
+  "description": "http://browscap.org/ port for nodejs, php is not required",
+  "homepage": "https://github.com/zsfelber/nodejs-browscap#readme",
   "bugs": {
-    "url": "https://github.com/zsfelber/serpa/issues"
+    "url": "https://github.com/zsfelber/nodejs-browscap/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zsfelber/serpa.git"
+    "url": "git+https://github.com/zsfelber/nodejs-browscap.git"
   },
   "exports": {
     ".": "./src",
