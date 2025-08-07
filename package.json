@@ -15,8 +15,8 @@
   },
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.ts",
   "scripts": {
     "init": "node -r esbuild-register src/userAgentMatcher.ts --init",
     "test": "node --expose-gc -r esbuild-register src/userAgentMatcher.ts --testBrowscap"
