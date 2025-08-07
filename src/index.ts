@@ -15,6 +15,12 @@ function reversedString(input: string) {
     return r;
 }
 
+function loadJSONSync(filePath: string) {
+    let buf = fs.readFileSync(filePath);
+    let obj = JSON.parse(buf.toString());
+    return obj;
+}
+
 function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryName:string) {
 
     let zip = new AdmZip(zipPath);
@@ -224,9 +230,7 @@ export class ParsedBrowscapMatcher {
         }
 
         // see ../data/browscap.zip
-        let buf = fs.readFileSync(__dirname+"/../data/browscap.json");
-
-        let obj = JSON.parse(buf.toString());
+        let obj = loadJSONSync(__dirname+"/../data/browscap.json");
         this.headerComments = obj.comments;
         this.header = {GJK_Browscap_Version:obj.GJK_Browscap_Version.Version, timestamp:obj.GJK_Browscap_Version.Released};
 
@@ -900,7 +904,7 @@ export async function testBrowscap() {
     console.log("--------------------------");
 
     // playwright devices
-    let devices = await require(__dirname+'/../data/test/devices.json');
+    let devices = loadJSONSync(__dirname+'/../data/test/devices.json');
     for (let devicedesc of Object.values(devices)) {
         let ua:string = devicedesc["userAgent"];
         add(ua);
@@ -914,7 +918,7 @@ export async function testBrowscap() {
     console.log("--------------------------");
 
     // playwright devices with variables
-    let varDevices = await require(__dirname+'/../data/test/devices-var.json');
+    let varDevices = loadJSONSync(__dirname+'/../data/test/devices-var.json');
     for (let devicedesc of Object.values(varDevices)) {
         let ua:string = devicedesc["userAgent"];
         ua = ua.replace("${mozilla-version}", "5.0");
@@ -1026,6 +1030,7 @@ export async function testBrowscap() {
         console.log('Garbage collection unavailable.  Pass --expose-gc '
         + 'when launching node to enable forced garbage collection.');
     }
+
     // to check consumed memory (3 mins)
     await(sleep(180000));
 }
