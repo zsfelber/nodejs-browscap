@@ -3,9 +3,9 @@ http://browscap.org/ port for nodejs, php is not required
 
 It's initializing from 'browscap.json' directly, this file is maintained regularly in nodejs-browscap package.
 
-Current version information :
+Browscap release information :
 ```
-nodejs-browscap version: 1.0.0
+nodejs-browscap version: 1.0.0 ...
 GJK Browscap Version: 6001008,
 GJK Browscap Version Released: Wed, 19 Feb 2025 15:58:54 +0000
 ```
