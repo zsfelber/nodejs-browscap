@@ -10,7 +10,7 @@ GJK Browscap Version: 6001008,
 GJK Browscap Version Released: Wed, 19 Feb 2025 15:58:54 +0000
 ```
 
-# Impl
+# :gear: Impl
 
 Implemented in typescript. It is initializing an internal grammar's search tree at first invocation time, which takes a few seconds. Metadata is kept in memory afterwards. 
 ```
@@ -263,7 +263,8 @@ cd node_modules/nodejs-browscap
 npm run test
 ```
 
-Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). It is about 1 Gbyte currently. 
+Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). 
+Latter one is about 1 Gbyte currently. See (#gear-Impl)
 
 # Uninitializing
 
