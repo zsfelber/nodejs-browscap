@@ -1054,7 +1054,7 @@ export async function testBrowscap() {
 }
 
 
-if (argv.indexOf("--init")!=-1) {
+if (argv.indexOf("--initBrowscap")!=-1) {
     initializeDataFiles();
 }
 
