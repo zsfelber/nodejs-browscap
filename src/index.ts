@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import { printTree } from 'tree-dump';
 import { argv } from 'process';
 import AdmZip from "adm-zip";
@@ -17,12 +18,15 @@ function reversedString(input: string) {
 }
 
 function loadJSONSync(filePath: string) {
+    //filePath = path.resolve(filePath);
     let buf = fs.readFileSync(filePath);
     let obj = JSON.parse(buf.toString());
     return obj;
 }
 
 function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryName:string, update:boolean=true) {
+    zipPath = path.resolve(zipPath);
+    outFilePath = path.resolve(outFilePath);
 
     let zip = new AdmZip(zipPath);
     let zipEntries = zip.getEntries();
