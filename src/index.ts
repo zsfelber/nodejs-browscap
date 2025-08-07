@@ -1053,6 +1053,10 @@ export async function testBrowscap() {
     await(sleep(180000));
 }
 
+export function loadBrowscap() {
+    initializeDatabase();
+}
+
 
 if (argv.indexOf("--initBrowscap")!=-1) {
     initializeDataFiles();
@@ -1060,12 +1064,4 @@ if (argv.indexOf("--initBrowscap")!=-1) {
 
 if (argv.indexOf("--testBrowscap")!=-1) {
     testBrowscap();
-}
-
-export function loadBrowscap() {
-    initializeDataFiles();
-}
-
-export function initBrowscap() {
-    initializeDatabase();
 }
