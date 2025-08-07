@@ -1062,6 +1062,10 @@ if (argv.indexOf("--testBrowscap")!=-1) {
     testBrowscap();
 }
 
-export function load() {
-    
+export function loadBrowscap() {
+    initializeDataFiles();
+}
+
+export function initBrowscap() {
+    initializeDatabase();
 }
