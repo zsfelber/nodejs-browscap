@@ -11,7 +11,12 @@
     "url": "git+https://github.com/zsfelber/nodejs-browscap.git"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".":{
+      "import": "./src/index.ts",
+      "types": "./src/index.ts",
+      "node": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
   },
   "license": "ISC",
   "author": "",
