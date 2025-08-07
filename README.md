@@ -466,7 +466,7 @@ Runs tests.
 #### :gear: compressedResults
 
 | Property | Type | Get | Set |
-| ---------- | ---------- |
+| ---------- | ---------- | ---------- | ---------- |
 | `compressedResults` | `BrowscapMatchResult` | `yes` | `no` |
 
 ## :tropical_drink: Interfaces
