@@ -11,11 +11,11 @@
     "url": "git+https://github.com/zsfelber/nodejs-browscap.git"
   },
   "exports": {
-    ".": "./src"
+    ".": "./src/index.ts"
   },
   "license": "ISC",
   "author": "",
-  "type": "module",
+  "type": "commonjs",
   "main": "src/index.ts",
   "scripts": {
     "init": "node -r esbuild-register src/index.ts --init",

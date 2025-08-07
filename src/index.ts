@@ -3,10 +3,11 @@ import {printTree} from 'tree-dump';
 import { argv } from 'process';
 import AdmZip from "adm-zip";
 
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+//for type:"module"
+//import { fileURLToPath } from 'url';
+//import { dirname } from 'path';
+//const __filename = fileURLToPath(import.meta.url);
+//const __dirname = dirname(__filename);
 
 let debug = false;
 
@@ -210,9 +211,11 @@ export class ParsedBrowscapMatcher {
     built = false;
 
     extractJson() {
-        console.log("Extracting json...");
-  
-        extractSingleFileFromZip(__dirname+"/../data/browscap.zip", __dirname+"/../data/browscap.json", "browscap.json");
+        if (!fs.existsSync(__dirname+"/../data/browscap.zip")) {
+            console.log("Extracting json...");
+    
+            extractSingleFileFromZip(__dirname+"/../data/browscap.zip", __dirname+"/../data/browscap.json", "browscap.json");
+        }
     }
 
     buildFromJson() {
