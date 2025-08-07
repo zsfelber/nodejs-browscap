@@ -19,7 +19,7 @@ buildSearchTree: 8.088s
 initializeDatabase: 9.690s
 
 ```
-Searching algorithm is quite efficient. Current Browscap pattern database consists of 446k records, and any requested sample is being matched against each. (It returns all possible matching records.) Still, on my desktop env:
+Searching algorithm is quite efficient. Current Browscap pattern database consists of 446k records, and any requested sample is being matched against each of them. (It returns all possible matching records.) Still, on my desktop env:
 
 ```
 Valid: 10084 / 10339 98%
