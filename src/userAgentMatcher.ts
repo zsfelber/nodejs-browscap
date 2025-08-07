@@ -11,6 +11,22 @@ function reversedString(input: string) {
     return r;
 }
 
+function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryName:string) {
+
+    let zip = new AdmZip(zipPath);
+    var zipEntries = zip.getEntries();
+
+    zipEntries.forEach(function (zipEntry) {
+        if (zipEntry.entryName == entryName) {
+            console.log("Extracting ",entryName,"...");
+            fs.writeFileSync(outFilePath, zipEntry.getData());
+            return true;
+        }
+    });
+    console.log("WARN Entry not found: ",entryName, " in:", zipPath);
+    return false;
+}
+
 class BrowscapMatcherNode {
 
     readonly root:BrowscapMatcherNode;
@@ -186,16 +202,7 @@ export class ParsedBrowscapMatcher {
     extractJson() {
         console.log("Extracting json...");
   
-        let zip = new AdmZip(__dirname+"/../data/browscap.zip");
-        var zipEntries = zip.getEntries(); // an array of ZipEntry records - add password parameter if entries are password protected
-
-        zipEntries.forEach(function (zipEntry) {
-            if (zipEntry.entryName == "browscap.json") {
-                console.log(zipEntry.entryName); // outputs zip entries information
-                //console.log(zipEntry.getData().toString("utf8"));
-                fs.writeFileSync(__dirname+"/../data/browscap.json", zipEntry.getData());
-            }
-        });
+        extractSingleFileFromZip(__dirname+"/../data/browscap.zip", __dirname+"/../data/browscap.json", "browscap.json");
     }
 
     buildFromJson() {
@@ -889,7 +896,7 @@ export async function testBrowscap() {
     console.log("--------------------------");
 
     // playwright devices
-    let devices = await require('../../out/devices.json');
+    let devices = await require(__dirname+'/../data/test/devices.json');
     for (let devicedesc of Object.values(devices)) {
         let ua:string = devicedesc["userAgent"];
         add(ua);
@@ -902,9 +909,9 @@ export async function testBrowscap() {
     console.log("generalized playwright");
     console.log("--------------------------");
 
-    // playwright devices
-    let advDevices = await require('../devices.json');
-    for (let devicedesc of Object.values(advDevices)) {
+    // playwright devices with variables
+    let varDevices = await require(__dirname+'/../data/test/devices-var.json');
+    for (let devicedesc of Object.values(varDevices)) {
         let ua:string = devicedesc["userAgent"];
         ua = ua.replace("${mozilla-version}", "5.0");
         ua = ua.replace(/\$\{.*?\}/g, "*");
@@ -968,7 +975,9 @@ export async function testBrowscap() {
         console.log("whatismybrowser");
         console.log("--------------------------");
 
-        let buf = fs.readFileSync("/home/zsfelber/Downloads/whatismybrowser-user-agent-database-2022-07-15-02-53--csv-SAMPLE/whatismybrowser-user-agents.csv");
+        extractSingleFileFromZip(__dirname+"/../data/test/whatismybrowser-user-agents.zip", __dirname+"/../data/test/whatismybrowser-user-agents.csv", "whatismybrowser-user-agents.csv");
+
+        let buf = fs.readFileSync(__dirname+"/../data/test/whatismybrowser-user-agents.csv");
 
         let rows = buf.toString().split("\n");
 
