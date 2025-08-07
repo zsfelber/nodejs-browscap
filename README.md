@@ -436,7 +436,7 @@ Runs tests.
 - [toObj](#gear-toobj)
 
 ### Properties
-- [compressedResults](#gear-get&nsbp;compressedResults)
+- [compressedResults](#gear-compressedResults)
 
 
 #### :gear: merge
@@ -463,11 +463,11 @@ Runs tests.
 | ---------- | ---------- |
 | `toObj` | `() => {}` |
 
-#### :gear: get&nsbp;compressedResults
+#### :gear: compressedResults
 
-| Property | Type |
+| Property | Type | Get | Set |
 | ---------- | ---------- |
-| `compressedResults` | `BrowscapMatchResult` |
+| `compressedResults` | `BrowscapMatchResult` | (y) | (n) |
 
 ## :tropical_drink: Interfaces
 
