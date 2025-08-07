@@ -564,7 +564,7 @@ export class BrowscapMatchResult {
         return result;
     }
 
-    get compressedResults() {
+    get compressedResults(): BrowscapMatchResult {
         if (!this._compressedResults) {
             this._compressedResults = new BrowscapMatchResult();
             this._compressedResults._compressedResults = this._compressedResults;
@@ -797,7 +797,27 @@ function bcmatch(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string) {
 
 var parsedBrowscapMatcher: ParsedBrowscapMatcher;
 
+/**
+ * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
+ */
+export function findBrowscapRecords(sample: string) {
 
+    initializeDatabase();
+
+    if (debug) console.log("Sample:", sample);
+    let matches = bcmatch(parsedBrowscapMatcher, sample);
+
+    if (debug) {
+        console.log("Records:");
+        console.log(JSON.stringify(matches.compressedResults.toObj(),null,2));
+    }
+
+    return matches;
+}
+
+/**
+ * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
+ */
 export function initializeDataFiles() {
     if (!parsedBrowscapMatcher) {
         parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
@@ -810,6 +830,9 @@ export function initializeDataFiles() {
     parsedBrowscapMatcher.extractJsonIfNotExists();
 }
 
+/**
+ * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+ */
 export function initializeDatabase() {
     if (!parsedBrowscapMatcher) {
         parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
@@ -830,21 +853,9 @@ export function initializeDatabase() {
     return parsedBrowscapMatcher;
 }
 
-export function findBrowscapRecords(sample: string) {
-
-    initializeDatabase();
-
-    if (debug) console.log("Sample:", sample);
-    let matches = bcmatch(parsedBrowscapMatcher, sample);
-
-    if (debug) {
-        console.log("Records:");
-        console.log(JSON.stringify(matches.compressedResults.toObj(),null,2));
-    }
-
-    return matches;
-}
-
+/**
+ * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
+ */
 export function uninitializeDatabase(warngc=true) {
     global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
 
@@ -857,8 +868,9 @@ export function uninitializeDatabase(warngc=true) {
 }
 
 
-// test
-
+/**
+ * Runs tests.
+ */
 export async function testBrowscap() {
     console.time('tests');
 
@@ -1060,10 +1072,6 @@ export async function testBrowscap() {
 
     // to check consumed memory (3 mins)
     await(sleep(180000));
-}
-
-export function loadBrowscap() {
-    initializeDatabase();
 }
 
 

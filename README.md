@@ -308,14 +308,23 @@ uninitializeDatabase(false);
 
 ## :toolbox: Functions
 
+- [findBrowscapRecords](#gear-findbrowscaprecords)
 - [initializeDataFiles](#gear-initializedatafiles)
 - [initializeDatabase](#gear-initializedatabase)
-- [findBrowscapRecords](#gear-findbrowscaprecords)
 - [uninitializeDatabase](#gear-uninitializedatabase)
 - [testBrowscap](#gear-testbrowscap)
-- [loadBrowscap](#gear-loadbrowscap)
+
+### :gear: findBrowscapRecords
+
+Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
+
+| Function | Type |
+| ---------- | ---------- |
+| `findBrowscapRecords` | `(sample: string) => BrowscapMatchResult` |
 
 ### :gear: initializeDataFiles
+
+Extract missing data files from ZIP archives. (Otherwise being done automatically.)
 
 | Function | Type |
 | ---------- | ---------- |
@@ -323,17 +332,15 @@ uninitializeDatabase(false);
 
 ### :gear: initializeDatabase
 
+Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+
 | Function | Type |
 | ---------- | ---------- |
 | `initializeDatabase` | `() => ParsedBrowscapMatcher` |
 
-### :gear: findBrowscapRecords
-
-| Function | Type |
-| ---------- | ---------- |
-| `findBrowscapRecords` | `(sample: string) => BrowscapMatchResult` |
-
 ### :gear: uninitializeDatabase
+
+Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
 
 | Function | Type |
 | ---------- | ---------- |
@@ -341,15 +348,11 @@ uninitializeDatabase(false);
 
 ### :gear: testBrowscap
 
+Runs tests.
+
 | Function | Type |
 | ---------- | ---------- |
 | `testBrowscap` | `() => Promise<void>` |
-
-### :gear: loadBrowscap
-
-| Function | Type |
-| ---------- | ---------- |
-| `loadBrowscap` | `() => void` |
 
 
 ## :factory: ParsedBrowscapMatcher
