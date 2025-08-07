@@ -458,3 +458,105 @@ Runs tests.
 | Method | Type |
 | ---------- | ---------- |
 | `toObj` | `() => {}` |
+
+## :tropical_drink: Interfaces
+
+- [BrowscapHeader](#gear-browscapheader)
+- [BasicBrowscapUserAgentProperties](#gear-basicbrowscapuseragentproperties)
+- [BasicBrowscapUserAgent](#gear-basicbrowscapuseragent)
+- [BrowscapRecord](#gear-browscaprecord)
+
+### :gear: BrowscapHeader
+
+
+
+| Property | Type | Description |
+| ---------- | ---------- | ---------- |
+| `GJK_Browscap_Version` | `string or number` |  |
+| `timestamp` | `string` |  |
+
+
+### :gear: BasicBrowscapUserAgentProperties
+
+
+
+| Property | Type | Description |
+| ---------- | ---------- | ---------- |
+| `Parent` | `string` |  |
+| `Comment` | `string` |  |
+| `Browser` | `string` |  |
+| `Browser_Bits` | `number` |  |
+| `Platform_Bits` | `number` |  |
+| `Version` | `string or number` |  |
+| `MajorVer` | `string or number` |  |
+| `MinorVer` | `string or number` |  |
+
+
+### :gear: BasicBrowscapUserAgent
+
+
+
+| Property | Type | Description |
+| ---------- | ---------- | ---------- |
+| `UserAgentPatterns` | `string[]` |  |
+
+
+### :gear: BrowscapRecord
+
+
+
+| Property | Type | Description |
+| ---------- | ---------- | ---------- |
+| `PropertyName` | `string` |  |
+| `UserAgents` | `BasicBrowscapUserAgent[]` |  |
+| `MasterParent` | `string` |  |
+| `LiteMode` | `boolean` |  |
+| `Parent` | `string` |  |
+| `Comment` | `string` |  |
+| `Browser` | `string` |  |
+| `Browser_Type` | `string` |  |
+| `Browser_Bits` | `number` |  |
+| `Browser_Maker` | `string` |  |
+| `Browser_Modus` | `string` |  |
+| `Version` | `string or number` |  |
+| `MajorVer` | `string` |  |
+| `MinorVer` | `string` |  |
+| `Platform` | `string` |  |
+| `Platform_Version` | `string or number` |  |
+| `Platform_Description` | `string` |  |
+| `Platform_Bits` | `number` |  |
+| `Platform_Maker` | `string` |  |
+| `Alpha` | `boolean` |  |
+| `Beta` | `boolean` |  |
+| `Win16` | `boolean` |  |
+| `Win32` | `boolean` |  |
+| `Win64` | `boolean` |  |
+| `Frames` | `boolean` |  |
+| `IFrames` | `boolean` |  |
+| `Tables` | `boolean` |  |
+| `Cookies` | `boolean` |  |
+| `BackgroundSounds` | `boolean` |  |
+| `JavaScript` | `boolean` |  |
+| `VBScript` | `boolean` |  |
+| `JavaApplets` | `boolean` |  |
+| `ActiveXControls` | `boolean` |  |
+| `isMobileDevice` | `boolean` |  |
+| `isTablet` | `boolean` |  |
+| `isSyndicationReader` | `boolean` |  |
+| `Crawler` | `boolean` |  |
+| `isFake` | `boolean` |  |
+| `isAnonymized` | `boolean` |  |
+| `isModified` | `boolean` |  |
+| `CssVersion` | `string or number` |  |
+| `AolVersion` | `string or number` |  |
+| `Device_Name` | `string` |  |
+| `Device_Maker` | `string` |  |
+| `Device_Type` | `string` |  |
+| `Device_Pointing_Method` | `string` |  |
+| `Device_Code_Name` | `string` |  |
+| `Device_Brand_Name` | `string` |  |
+| `RenderingEngine_Name` | `string` |  |
+| `RenderingEngine_Version` | `string or number` |  |
+| `RenderingEngine_Description` | `string` |  |
+| `RenderingEngine_Maker` | `string` |  |
+
