@@ -16,13 +16,13 @@ function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryNam
     let zip = new AdmZip(zipPath);
     var zipEntries = zip.getEntries();
 
-    zipEntries.forEach(function (zipEntry) {
+    for (let zipEntry of zipEntries.values()) {
         if (zipEntry.entryName == entryName) {
             console.log("Extracting ",entryName,"...");
             fs.writeFileSync(outFilePath, zipEntry.getData());
             return true;
         }
-    });
+    }
     console.log("WARN Entry not found: ",entryName, " in:", zipPath);
     return false;
 }
