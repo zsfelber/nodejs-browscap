@@ -845,7 +845,16 @@ export function findBrowscapRecords(sample: string) {
     return matches;
 }
 
+export function uninitializeDatabase(warngc=true) {
+    global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
 
+    if (global.gc) {
+        global.gc();
+    } else if (warngc) {
+        console.log('Garbage collection unavailable.  Pass --expose-gc '
+        + 'when launching node to enable forced garbage collection.');
+    }
+}
 
 
 // test

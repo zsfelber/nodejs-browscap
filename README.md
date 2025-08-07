@@ -263,4 +263,45 @@ cd node_modules/nodejs-browscap
 npm run test
 ```
 
-Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell).
+Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). It is about 1 Gbytes currently. 
+
+# Uninitializging
+
+```
+import {findBrowscapRecords, uninitializeDatabase} from "nodejs-browscap";
+
+// ...
+// repetitive heavy findBrowscapRecords tasks
+// ...
+
+uninitializeDatabase();
+
+```
+
+It may complain about :
+```
+Garbage collection unavailable.  Pass --expose-gc when launching node to enable forced garbage collection.
+
+```
+You can get rid of that passing that option in command line:
+```
+npm run test -- --expose-gc
+```
+
+or configuring "scripts" in your package.json as follows:
+
+```
+  "scripts": {
+    "test": "node --expose-gc -r esbuild-register src/index.ts --testBrowscap"
+  },
+```
+
+alternatively suppress that warning message
+
+```
+uninitializeDatabase(false);
+
+```
+
+
+# API
