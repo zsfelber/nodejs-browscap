@@ -8,6 +8,18 @@ The latest nodejs-browscap package is based on :
 "timestamp": "Wed, 19 Feb 2025 15:58:54 +0000"
 ```
 
+# Impl
+
+Implemented in typescript. It is initializing a fast internal grammar search tree, it takes a few second.
+Metadata is kept in memory afterwards, its algorithm is very efficient. Database consists of 446k pattern records, and any requested sample is matching against each. On my desktop env:
+
+```
+Valid: 10084 / 10339 98%
+matchers: 3.882s
+```
+
+So the average matching time was 400μsec.
+
 # Usage
 
 ```
