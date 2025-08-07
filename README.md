@@ -435,6 +435,10 @@ Runs tests.
 - [set](#gear-set)
 - [toObj](#gear-toobj)
 
+### Properties
+- [compressedResults](#gear-compressedResults)
+
+
 #### :gear: merge
 
 | Method | Type |
@@ -458,6 +462,12 @@ Runs tests.
 | Method | Type |
 | ---------- | ---------- |
 | `toObj` | `() => {}` |
+
+#### :gear: get compressedResults
+
+| Property | Type |
+| ---------- | ---------- |
+| `compressedResults` | `BrowscapMatchResult` |
 
 ## :tropical_drink: Interfaces
 
@@ -493,7 +503,7 @@ Runs tests.
 
 
 ### :gear: BasicBrowscapUserAgent
-
+### extends BasicBrowscapUserAgentProperties
 
 
 | Property | Type | Description |
