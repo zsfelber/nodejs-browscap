@@ -22,15 +22,24 @@ function loadJSONSync(filePath: string) {
     return obj;
 }
 
-function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryName:string) {
+function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryName:string, update:boolean=true) {
 
     let zip = new AdmZip(zipPath);
-    var zipEntries = zip.getEntries();
+    let zipEntries = zip.getEntries();
+    let curfilesz = 0;
+    if (update && fs.existsSync(outFilePath)) {
+        curfilesz = fs.statSync(outFilePath).size;
+    }
 
     for (let zipEntry of zipEntries.values()) {
         if (zipEntry.entryName == entryName) {
-            console.log("Extracting ",entryName,"...");
-            fs.writeFileSync(outFilePath, zipEntry.getData());
+            if (!update || zipEntry.header.size !== curfilesz) {
+                //console.log("compressedSize !== curfilesz ",zipEntry.header.compressedSize,"!==",curfilesz);
+                console.log("Extracting ",entryName,"...");
+                fs.writeFileSync(outFilePath, zipEntry.getData());
+            } else {
+                console.log("Output file (of proper size) is present already:", outFilePath);
+            }
             return true;
         }
     }
@@ -210,12 +219,10 @@ export class ParsedBrowscapMatcher {
     parentProperties = new Map<string,BrowscapRecord>();
     built = false;
 
-    extractJson() {
-        if (!fs.existsSync(__dirname+"/../data/browscap.zip")) {
-            console.log("Extracting json...");
-    
-            extractSingleFileFromZip(__dirname+"/../data/browscap.zip", __dirname+"/../data/browscap.json", "browscap.json");
-        }
+    extractJsonIfNotExists() {
+        console.log("Extracting json...");
+
+        extractSingleFileFromZip(__dirname+"/../data/browscap.zip", __dirname+"/../data/browscap.json", "browscap.json");
     }
 
     buildFromJson() {
@@ -229,7 +236,7 @@ export class ParsedBrowscapMatcher {
         console.time("loadJson");
 
         if (!fs.existsSync(__dirname+"/../data/browscap.json")) {
-            this.extractJson();
+            this.extractJsonIfNotExists();
         }
 
         // see ../data/browscap.zip
@@ -792,17 +799,13 @@ var parsedBrowscapMatcher: ParsedBrowscapMatcher;
 export function initializeDataFiles() {
     if (!parsedBrowscapMatcher) {
         parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
-
-        parsedBrowscapMatcher.extractJson();
     }
 
     if (!parsedBrowscapMatcher) {
-
         global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
-
-        parsedBrowscapMatcher.extractJson();
-        
     }
+
+    parsedBrowscapMatcher.extractJsonIfNotExists();
 }
 
 export function initializeDatabase() {
