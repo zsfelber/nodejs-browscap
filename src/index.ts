@@ -3,6 +3,10 @@ import {printTree} from 'tree-dump';
 import { argv } from 'process';
 import AdmZip from "adm-zip";
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let debug = false;
 
