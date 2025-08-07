@@ -537,6 +537,10 @@ function compressObjectIntoTree<T>(vs0: T[], uniqueProps:object, results: Map<st
     } while (vs0.length);
 }
 
+export interface MapLike<T> {
+    [index:string]: T;
+}
+
 export class BrowscapMatchResult {
     readonly results = new Map<string, BrowscapRecord>();
     private _compressedResults: BrowscapMatchResult;
@@ -556,15 +560,15 @@ export class BrowscapMatchResult {
     }
 
 
-    toObj() {
-        let result = {};
+    get asObj():MapLike<BrowscapRecord> {
+        let result:MapLike<BrowscapRecord> = {};
         for (let match of this.results.entries()) {
             result[match[0]] = match[1];
         }
         return result;
     }
 
-    get asMap(): Map<string, BrowscapRecord> {
+    get asMap(): ReadonlyMap<string, BrowscapRecord> {
         return this.results;
     }
 
@@ -813,7 +817,7 @@ export function findBrowscapRecords(sample: string) {
 
     if (debug) {
         console.log("Records:");
-        console.log(JSON.stringify(matches.compressedResults.toObj(),null,2));
+        console.log(JSON.stringify(matches.compressedResults.asObj,null,2));
     }
 
     return matches;

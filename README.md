@@ -48,7 +48,7 @@ let results:BrowscapMatchResult = findBrowscapRecords(sample);
 
 if (debug) {
     console.log("Records:");
-    console.log(JSON.stringify(matches.compressedResults.toObj(),null,2));
+    console.log(JSON.stringify(matches.compressedResults.asObj,null,2));
 }
 
 ```
@@ -433,9 +433,9 @@ Runs tests.
 - [merge](#gear-merge)
 - [mergeReversed](#gear-mergereversed)
 - [set](#gear-set)
-- [toObj](#gear-toobj)
 
 ### Properties
+- [asObj](#gear-asObj)
 - [asMap](#gear-asMap)
 - [compressedResults](#gear-compressedResults)
 
@@ -458,11 +458,11 @@ Runs tests.
 | ---------- | ---------- |
 | `set` | `(key: string, record: BrowscapRecord) => void` |
 
-#### :gear: toObj
+#### :gear: asObj
 
-| Method | Type |
-| ---------- | ---------- |
-| `toObj` | `() => {}` |
+| Property | Type | Get | Set |
+| ---------- | ---------- | ---------- | ---------- |
+| `asObj` | `MapLike<BrowscapRecord>` | `yes` | `no` |
 
 #### :gear: asMap
 
