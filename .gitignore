@@ -1,5 +1,4 @@
 node_modules
 package-lock.json
 data/browscap.json
-data/browscap-full.json
 data/test/whatismybrowser-user-agents.csv
