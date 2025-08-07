@@ -1061,3 +1061,7 @@ if (argv.indexOf("--initBrowscap")!=-1) {
 if (argv.indexOf("--testBrowscap")!=-1) {
     testBrowscap();
 }
+
+export function load() {
+    
+}
