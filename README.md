@@ -467,7 +467,7 @@ Runs tests.
 
 | Property | Type | Get | Set |
 | ---------- | ---------- |
-| `compressedResults` | `BrowscapMatchResult` | (y) | (n) |
+| `compressedResults` | `BrowscapMatchResult` | `yes` | `no` |
 
 ## :tropical_drink: Interfaces
 
