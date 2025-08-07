@@ -10,8 +10,16 @@ The latest nodejs-browscap package is based on :
 
 # Impl
 
-Implemented in typescript. It is initializing a fast internal grammar search tree, it takes a few second.
-Metadata is kept in memory afterwards, searching algorithm is quite efficient. Database consists of 446k pattern records, and any requested sample is being matched against each (no heuristics applied, eg greedy matching). On my desktop env:
+Implemented in typescript. It is initializing a fast internal grammar search tree at first invokation time, which takes a few second.
+```
+Load patterns input file...
+Extracting json...
+...
+buildSearchTree: 8.088s
+initializeDatabase: 9.690s
+
+```
+Metadata is kept in memory afterwards. searching algorithm is quite efficient. Database consists of 446k pattern records, and any requested sample is being matched against each (no heuristics applied, eg greedy matching). On my desktop env:
 
 ```
 Valid: 10084 / 10339 98%
