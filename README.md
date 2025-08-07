@@ -436,7 +436,7 @@ Runs tests.
 - [toObj](#gear-toobj)
 
 ### Properties
-- [compressedResults](#gear-asMap)
+- [asMap](#gear-asMap)
 - [compressedResults](#gear-compressedResults)
 
 
