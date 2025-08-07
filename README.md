@@ -436,7 +436,7 @@ Runs tests.
 - [toObj](#gear-toobj)
 
 ### Properties
-- [compressedResults](#gear-compressedResults)
+- [compressedResults](#gear-get compressedResults)
 
 
 #### :gear: merge
