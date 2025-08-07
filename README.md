@@ -1,7 +1,7 @@
 # nodejs-browscap
 http://browscap.org/ port for nodejs, php is not required
 
-It's initializing from 'browscap.json' directly, this file is maintained in current nodejs-browscap package.
+It's initializing from 'browscap.json' directly, this file is maintained regularly in nodejs-browscap package.
 
 Current version information :
 ```
