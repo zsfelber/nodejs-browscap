@@ -1,0 +1,46 @@
+{
+  "name": "serpa",
+  "version": "1.0.0",
+  "description": "chrome://inspect/#devices https://bot.dobiadi.dev/ https://github.com/Kaliiiiiiiiii-Vinyzu/patchright-nodejs",
+  "homepage": "https://github.com/zsfelber/serpa#readme",
+  "bugs": {
+    "url": "https://github.com/zsfelber/serpa/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zsfelber/serpa.git"
+  },
+  "exports": {
+    ".": "./src",
+    "./patches/stealth/evasions/navigator.webdriver.webkit": {
+      "require": "./src/patches/stealth/evasions/navigator.webdriver.webkit/index.js",
+      "import": "./src/patches/stealth/evasions/navigator.webdriver.webkit/index.ts"
+    }
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "init": "node -r esbuild-register src/dev/initPackage.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "index-debug": "PWDEBUG=1 node -r esbuild-register src/index.ts",
+    "index": "node -r esbuild-register src/index.ts",
+    "buildDbs": "node -r esbuild-register src/dev/buildDbs.ts",
+    "userAgentMatcher": "node --expose-gc -r esbuild-register src/dev/userAgentMatcher.ts"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "readline-sync": "^1.4.10",
+    "tree-dump": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/node": "^24.2.0",
+    "@types/readline-sync": "^1.4.8",
+    "esbuild": "^0.25.8",
+    "esbuild-register": "^3.6.0",
+    "playwright": "1.54.2",
+    "typescript": "^5.9.2"
+  }
+}
