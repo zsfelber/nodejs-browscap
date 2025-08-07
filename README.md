@@ -26,7 +26,7 @@ Valid: 10084 / 10339 98%
 matchers: 3.882s
 ```
 
-So the average matching time was 400μsec.
+So the average matching time was 385μsec.
 
 # Usage
 
