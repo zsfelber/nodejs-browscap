@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import {printTree} from 'tree-dump';
+import { printTree } from 'tree-dump';
 import { argv } from 'process';
 import AdmZip from "adm-zip";
 
