@@ -436,7 +436,7 @@ Runs tests.
 - [toObj](#gear-toobj)
 
 ### Properties
-- [compressedResults](#gear-get-compressedResults)
+- [compressedResults](#gear-get&nsbp;compressedResults)
 
 
 #### :gear: merge
@@ -463,7 +463,7 @@ Runs tests.
 | ---------- | ---------- |
 | `toObj` | `() => {}` |
 
-#### :gear: get-compressedResults
+#### :gear: get&nsbp;compressedResults
 
 | Property | Type |
 | ---------- | ---------- |
