@@ -1,6 +1,6 @@
 {
   "name": "nodejs-browscap",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "http://browscap.org/ port for nodejs, php is not required",
   "homepage": "https://github.com/zsfelber/nodejs-browscap#readme",
   "bugs": {
