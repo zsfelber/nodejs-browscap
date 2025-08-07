@@ -786,13 +786,19 @@ function bcmatch(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string) {
 
 // export
 
-let parsedBrowscapMatcher: ParsedBrowscapMatcher;
+var parsedBrowscapMatcher: ParsedBrowscapMatcher;
 
 
 export function initializeDataFiles() {
     if (!parsedBrowscapMatcher) {
+        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
 
-        parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+        parsedBrowscapMatcher.extractJson();
+    }
+
+    if (!parsedBrowscapMatcher) {
+
+        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
 
         parsedBrowscapMatcher.extractJson();
         
@@ -801,7 +807,11 @@ export function initializeDataFiles() {
 
 export function initializeDatabase() {
     if (!parsedBrowscapMatcher) {
-        parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
+    }
+
+    if (!parsedBrowscapMatcher) {
+        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
     }
 
     if (!parsedBrowscapMatcher.built) {
