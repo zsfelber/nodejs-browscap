@@ -9,6 +9,8 @@ Its current version :
 
 # Usage
 
+<code>
+
 import {findBrowscapRecords} from "nodejs-browscap";
 
 
@@ -21,6 +23,7 @@ if (debug) {
     console.log(JSON.stringify(matches.compressedResults.toObj(),null,2));
 }
 
+</code>
 
 
 <code>
