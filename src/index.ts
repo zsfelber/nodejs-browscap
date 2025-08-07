@@ -239,9 +239,7 @@ export class ParsedBrowscapMatcher {
 
         console.time("loadJson");
 
-        if (!fs.existsSync(__dirname+"/../data/browscap.json")) {
-            this.extractJsonIfNotExists();
-        }
+        this.extractJsonIfNotExists();
 
         // see ../data/browscap.zip
         let obj = loadJSONSync(__dirname+"/../data/browscap.json");
