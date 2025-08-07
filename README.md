@@ -264,7 +264,7 @@ npm run test
 ```
 
 Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). 
-Latter one is about 1 Gbyte currently. See (#Impl)
+Latter one is about 1 Gbyte currently. See (#impl)
 
 # Uninitializing
 
