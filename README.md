@@ -263,4 +263,4 @@ cd node_modules/nodejs-browscap
 npm run test
 ```
 
-Now, you are able to review speed data and memory consumption. (Open Task Manager / System Monitor / run 'top' in linux shell).
+Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell).
