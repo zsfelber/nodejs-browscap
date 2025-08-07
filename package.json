@@ -22,12 +22,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "init": "node -r esbuild-register src/dev/initPackage.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "index-debug": "PWDEBUG=1 node -r esbuild-register src/index.ts",
-    "index": "node -r esbuild-register src/index.ts",
-    "buildDbs": "node -r esbuild-register src/dev/buildDbs.ts",
-    "userAgentMatcher": "node --expose-gc -r esbuild-register src/dev/userAgentMatcher.ts"
+    "init": "node -r esbuild-register src/userAgentMatcher.ts --init",
+    "test": "node --expose-gc -r esbuild-register src/userAgentMatcher.ts --testBrowscap"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",

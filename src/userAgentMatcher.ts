@@ -181,6 +181,7 @@ export class ParsedBrowscapMatcher {
     headerComments: string[];
     defaultProperties: BrowscapRecord;
     parentProperties = new Map<string,BrowscapRecord>();
+    built = false;
 
     extractJson() {
         console.log("Extracting json...");
@@ -198,6 +199,10 @@ export class ParsedBrowscapMatcher {
     }
 
     buildFromJson() {
+        if (this.built) {
+            return;
+        }
+        this.built = true;
 
         console.log("Load patterns input file...");
 
@@ -766,16 +771,29 @@ function bcmatch(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string) {
 let parsedBrowscapMatcher: ParsedBrowscapMatcher;
 
 
-export function initializeDatabase() {
+export function initializeDataFiles() {
     if (!parsedBrowscapMatcher) {
-        console.time('initializeDatabase');
 
         parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+
+        parsedBrowscapMatcher.extractJson();
+        
+    }
+}
+
+export function initializeDatabase() {
+    if (!parsedBrowscapMatcher) {
+        parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+    }
+
+    if (!parsedBrowscapMatcher.built) {
+        console.time('initializeDatabase');
 
         parsedBrowscapMatcher.buildFromJson();
         
         console.timeEnd('initializeDatabase');
     }
+
     return parsedBrowscapMatcher;
 }
 
@@ -999,6 +1017,10 @@ export async function testBrowscap() {
     await(sleep(180000));
 }
 
+
+if (argv.indexOf("--init")!=-1) {
+    initializeDataFiles();
+}
 
 if (argv.indexOf("--testBrowscap")!=-1) {
     testBrowscap();
