@@ -10,7 +10,7 @@ The latest nodejs-browscap package is based on :
 
 # Impl
 
-Implemented in typescript. It is initializing a fast internal grammar search tree at first invokation time, which takes a few second.
+Implemented in typescript. It is initializing an internal grammar's search tree at first invokation time, which takes a few second.
 ```
 Load patterns input file...
 Extracting json...
