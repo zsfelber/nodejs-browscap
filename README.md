@@ -436,6 +436,7 @@ Runs tests.
 - [toObj](#gear-toobj)
 
 ### Properties
+- [compressedResults](#gear-asMap)
 - [compressedResults](#gear-compressedResults)
 
 
@@ -462,6 +463,12 @@ Runs tests.
 | Method | Type |
 | ---------- | ---------- |
 | `toObj` | `() => {}` |
+
+#### :gear: asMap
+
+| Property | Type | Get | Set |
+| ---------- | ---------- | ---------- | ---------- |
+| `asMap` | `Map<string, BrowscapRecord>` | `yes` | `no` |
 
 #### :gear: compressedResults
 
@@ -503,7 +510,7 @@ Runs tests.
 
 
 ### :gear: BasicBrowscapUserAgent
-### extends BasicBrowscapUserAgentProperties
+#### extends BasicBrowscapUserAgentProperties
 
 
 | Property | Type | Description |

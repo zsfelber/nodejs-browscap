@@ -564,6 +564,10 @@ export class BrowscapMatchResult {
         return result;
     }
 
+    get asMap(): Map<string, BrowscapRecord> {
+        return this.results;
+    }
+
     get compressedResults(): BrowscapMatchResult {
         if (!this._compressedResults) {
             this._compressedResults = new BrowscapMatchResult();
