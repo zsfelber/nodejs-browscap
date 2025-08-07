@@ -37,11 +37,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = void 0;
+exports.findBrowscapRecords = findBrowscapRecords;
 exports.initializeDataFiles = initializeDataFiles;
 exports.initializeDatabase = initializeDatabase;
-exports.findBrowscapRecords = findBrowscapRecords;
+exports.uninitializeDatabase = uninitializeDatabase;
 exports.testBrowscap = testBrowscap;
-exports.loadBrowscap = loadBrowscap;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const tree_dump_1 = require("tree-dump");
@@ -429,6 +429,9 @@ class BrowscapMatchResult {
         }
         return result;
     }
+    get asMap() {
+        return this.results;
+    }
     get compressedResults() {
         if (!this._compressedResults) {
             this._compressedResults = new BrowscapMatchResult();
@@ -592,6 +595,23 @@ function bcmatch(parsedBrowscapMatcher, sample) {
 }
 // export
 var parsedBrowscapMatcher;
+/**
+ * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
+ */
+function findBrowscapRecords(sample) {
+    initializeDatabase();
+    if (debug)
+        console.log("Sample:", sample);
+    let matches = bcmatch(parsedBrowscapMatcher, sample);
+    if (debug) {
+        console.log("Records:");
+        console.log(JSON.stringify(matches.compressedResults.toObj(), null, 2));
+    }
+    return matches;
+}
+/**
+ * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
+ */
 function initializeDataFiles() {
     if (!parsedBrowscapMatcher) {
         parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
@@ -601,6 +621,9 @@ function initializeDataFiles() {
     }
     parsedBrowscapMatcher.extractJsonIfNotExists();
 }
+/**
+ * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+ */
 function initializeDatabase() {
     if (!parsedBrowscapMatcher) {
         parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
@@ -615,18 +638,22 @@ function initializeDatabase() {
     }
     return parsedBrowscapMatcher;
 }
-function findBrowscapRecords(sample) {
-    initializeDatabase();
-    if (debug)
-        console.log("Sample:", sample);
-    let matches = bcmatch(parsedBrowscapMatcher, sample);
-    if (debug) {
-        console.log("Records:");
-        console.log(JSON.stringify(matches.compressedResults.toObj(), null, 2));
+/**
+ * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
+ */
+function uninitializeDatabase(warngc = true) {
+    global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
+    if (global.gc) {
+        global.gc();
     }
-    return matches;
+    else if (warngc) {
+        console.log('Garbage collection unavailable.  Pass --expose-gc '
+            + 'when launching node to enable forced garbage collection.');
+    }
 }
-// test
+/**
+ * Runs tests.
+ */
 async function testBrowscap() {
     console.time('tests');
     initializeDatabase();
@@ -780,7 +807,7 @@ async function testBrowscap() {
     debug = true;
     console.log("");
     console.log("");
-    console.log("Showing records");
+    console.log("Showing result");
     console.log("--------------------------");
     add("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36");
     console.log("");
@@ -798,9 +825,6 @@ async function testBrowscap() {
     }
     // to check consumed memory (3 mins)
     await (sleep(180000));
-}
-function loadBrowscap() {
-    initializeDatabase();
 }
 if (process_1.argv.indexOf("--initBrowscap") != -1) {
     initializeDataFiles();

@@ -109,13 +109,29 @@ export declare class BrowscapMatchResult {
     mergeReversed(other: BrowscapMatchResult): void;
     set(key: string, record: BrowscapRecord): void;
     toObj(): {};
+    get asMap(): Map<string, BrowscapRecord>;
     get compressedResults(): BrowscapMatchResult;
     get size(): number;
 }
-export declare function initializeDataFiles(): void;
-export declare function initializeDatabase(): ParsedBrowscapMatcher;
+/**
+ * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
+ */
 export declare function findBrowscapRecords(sample: string): BrowscapMatchResult;
+/**
+ * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
+ */
+export declare function initializeDataFiles(): void;
+/**
+ * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+ */
+export declare function initializeDatabase(): ParsedBrowscapMatcher;
+/**
+ * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
+ */
+export declare function uninitializeDatabase(warngc?: boolean): void;
+/**
+ * Runs tests.
+ */
 export declare function testBrowscap(): Promise<void>;
-export declare function loadBrowscap(): void;
 export {};
 //# sourceMappingURL=index.d.ts.map
