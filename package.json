@@ -11,11 +11,7 @@
     "url": "git+https://github.com/zsfelber/nodejs-browscap.git"
   },
   "exports": {
-    ".": "./src",
-    "./patches/stealth/evasions/navigator.webdriver.webkit": {
-      "require": "./src/patches/stealth/evasions/navigator.webdriver.webkit/index.js",
-      "import": "./src/patches/stealth/evasions/navigator.webdriver.webkit/index.ts"
-    }
+    ".": "./src"
   },
   "license": "ISC",
   "author": "",
