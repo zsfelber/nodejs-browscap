@@ -24,7 +24,8 @@
   "main": "src/index.ts",
   "scripts": {
     "init": "node -r esbuild-register src/index.ts --initBrowscap",
-    "test": "node --expose-gc -r esbuild-register src/index.ts --testBrowscap"
+    "test": "node --expose-gc -r esbuild-register src/index.ts --testBrowscap",
+    "tsdoc": "tsdoc --src=src/index.ts"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
@@ -35,7 +36,7 @@
     "@types/node": "^24.2.0",
     "esbuild": "^0.25.8",
     "esbuild-register": "^3.6.0",
-    "ts-readme-generator": "^0.7.5",
+    "tsdoc-markdown": "^1.4.1",
     "typescript": "^5.9.2"
   }
 }

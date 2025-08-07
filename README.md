@@ -305,3 +305,153 @@ uninitializeDatabase(false);
 
 
 # API
+
+## :toolbox: Functions
+
+- [initializeDataFiles](#gear-initializedatafiles)
+- [initializeDatabase](#gear-initializedatabase)
+- [findBrowscapRecords](#gear-findbrowscaprecords)
+- [uninitializeDatabase](#gear-uninitializedatabase)
+- [testBrowscap](#gear-testbrowscap)
+- [loadBrowscap](#gear-loadbrowscap)
+
+### :gear: initializeDataFiles
+
+| Function | Type |
+| ---------- | ---------- |
+| `initializeDataFiles` | `() => void` |
+
+### :gear: initializeDatabase
+
+| Function | Type |
+| ---------- | ---------- |
+| `initializeDatabase` | `() => ParsedBrowscapMatcher` |
+
+### :gear: findBrowscapRecords
+
+| Function | Type |
+| ---------- | ---------- |
+| `findBrowscapRecords` | `(sample: string) => BrowscapMatchResult` |
+
+### :gear: uninitializeDatabase
+
+| Function | Type |
+| ---------- | ---------- |
+| `uninitializeDatabase` | `(warngc?: boolean) => void` |
+
+### :gear: testBrowscap
+
+| Function | Type |
+| ---------- | ---------- |
+| `testBrowscap` | `() => Promise<void>` |
+
+### :gear: loadBrowscap
+
+| Function | Type |
+| ---------- | ---------- |
+| `loadBrowscap` | `() => void` |
+
+
+## :factory: ParsedBrowscapMatcher
+
+### Methods
+
+- [extractJsonIfNotExists](#gear-extractjsonifnotexists)
+- [buildFromJson](#gear-buildfromjson)
+- [build](#gear-build)
+- [mergeProperties](#gear-mergeproperties)
+
+#### :gear: extractJsonIfNotExists
+
+| Method | Type |
+| ---------- | ---------- |
+| `extractJsonIfNotExists` | `() => void` |
+
+#### :gear: buildFromJson
+
+| Method | Type |
+| ---------- | ---------- |
+| `buildFromJson` | `() => void` |
+
+#### :gear: build
+
+| Method | Type |
+| ---------- | ---------- |
+| `build` | `(bodyRecords: BrowscapRecord[]) => void` |
+
+#### :gear: mergeProperties
+
+| Method | Type |
+| ---------- | ---------- |
+| `mergeProperties` | `(properties: BrowscapRecord) => BrowscapRecord` |
+
+### Properties
+
+- [header](#gear-header)
+- [headerComments](#gear-headercomments)
+- [defaultProperties](#gear-defaultproperties)
+- [parentProperties](#gear-parentproperties)
+- [built](#gear-built)
+
+#### :gear: header
+
+| Property | Type |
+| ---------- | ---------- |
+| `header` | `BrowscapHeader` |
+
+#### :gear: headerComments
+
+| Property | Type |
+| ---------- | ---------- |
+| `headerComments` | `string[]` |
+
+#### :gear: defaultProperties
+
+| Property | Type |
+| ---------- | ---------- |
+| `defaultProperties` | `BrowscapRecord` |
+
+#### :gear: parentProperties
+
+| Property | Type |
+| ---------- | ---------- |
+| `parentProperties` | `Map<string, BrowscapRecord>` |
+
+#### :gear: built
+
+| Property | Type |
+| ---------- | ---------- |
+| `built` | `boolean` |
+
+## :factory: BrowscapMatchResult
+
+### Methods
+
+- [merge](#gear-merge)
+- [mergeReversed](#gear-mergereversed)
+- [set](#gear-set)
+- [toObj](#gear-toobj)
+
+#### :gear: merge
+
+| Method | Type |
+| ---------- | ---------- |
+| `merge` | `(other: BrowscapMatchResult) => void` |
+
+#### :gear: mergeReversed
+
+| Method | Type |
+| ---------- | ---------- |
+| `mergeReversed` | `(other: BrowscapMatchResult) => void` |
+
+#### :gear: set
+
+| Method | Type |
+| ---------- | ---------- |
+| `set` | `(key: string, record: BrowscapRecord) => void` |
+
+#### :gear: toObj
+
+| Method | Type |
+| ---------- | ---------- |
+| `toObj` | `() => {}` |
