@@ -265,7 +265,7 @@ npm run test
 
 Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). It is about 1 Gbyte currently. 
 
-# Uninitializging
+# Uninitializing
 
 ```
 import {findBrowscapRecords, uninitializeDatabase} from "nodejs-browscap";
