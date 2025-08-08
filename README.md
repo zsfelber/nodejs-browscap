@@ -433,9 +433,11 @@ Runs tests.
 
 - [merge](#gear-merge)
 - [mergeReversed](#gear-mergereversed)
+- [get](#gear-get)
 - [set](#gear-set)
 
 ### Properties
+- [size](#gear-size)
 - [asObj](#gear-asObj)
 - [asMap](#gear-asMap)
 - [compressedResults](#gear-compressedResults)
@@ -453,11 +455,23 @@ Runs tests.
 | ---------- | ---------- |
 | `mergeReversed` | `(other: BrowscapMatchResult) => void` |
 
+#### :gear: get
+
+| Method | Type |
+| ---------- | ---------- |
+| `get` | `(key: string) => BrowscapRecord` |
+
 #### :gear: set
 
 | Method | Type |
 | ---------- | ---------- |
 | `set` | `(key: string, record: BrowscapRecord) => void` |
+
+#### :gear: size
+
+| Property | Type | Get | Set |
+| ---------- | ---------- | ---------- | ---------- |
+| `size` | `number` | `yes` | `no` |
 
 #### :gear: asObj
 

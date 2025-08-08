@@ -542,34 +542,45 @@ export interface MapLike<T> {
 }
 
 export class BrowscapMatchResult {
-    readonly results = new Map<string, BrowscapRecord>();
+    private _results = new Map<string, BrowscapRecord>();
+    private _resultObj: MapLike<BrowscapRecord>;
     private _compressedResults: BrowscapMatchResult;
 
     merge(other: BrowscapMatchResult) {
-        for (let match of other.results.entries()) {
-            this.results.set(match[0], match[1]);
+        for (let match of other._results.entries()) {
+            this._results.set(match[0], match[1]);
         }
     }
     mergeReversed(other: BrowscapMatchResult) {
-        for (let match of other.results.entries()) {
-            this.results.set(reversedString(match[0]), match[1]);
+        for (let match of other._results.entries()) {
+            this._results.set(reversedString(match[0]), match[1]);
         }
+    }
+
+    get(key: string): BrowscapRecord {
+        return this._results.get(key);
     }
     set(key: string, record: BrowscapRecord) {
-        this.results.set(key, record);
+        this._results.set(key, record);
     }
 
 
-    get asObj():MapLike<BrowscapRecord> {
-        let result:MapLike<BrowscapRecord> = {};
-        for (let match of this.results.entries()) {
-            result[match[0]] = match[1];
+    get size() {
+        return this._results.size;
+    }
+
+    get asObj(): MapLike<BrowscapRecord> {
+        if (!this._resultObj) {
+            this._resultObj = {};
+            for (let match of this._results.entries()) {
+                this._resultObj[match[0]] = match[1];
+            }
         }
-        return result;
+        return this._resultObj;
     }
 
     get asMap(): ReadonlyMap<string, BrowscapRecord> {
-        return this.results;
+        return this._results;
     }
 
     get compressedResults(): BrowscapMatchResult {
@@ -592,10 +603,10 @@ export class BrowscapMatchResult {
                 PropertyName:1
             };
             
-            let vs1 = Array.from(this.results.values());
-            compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults.results, "PropertyName", "UserAgents");
+            let vs1 = Array.from(this._results.values());
+            compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults._results, "PropertyName", "UserAgents");
 
-            for (let compres of this._compressedResults.results.values()) {
+            for (let compres of this._compressedResults._results.values()) {
                 let vs2 = Array.from(compres.UserAgents);
                 let uas = new Map<string, BasicBrowscapUserAgent>();
                 compressObjectIntoTree(vs2, uaUniqueProps, uas, "PropertyName", "_UserAgentPatterns");
@@ -606,17 +617,12 @@ export class BrowscapMatchResult {
                 }
             }
 
-            this._compressedResults.results.set("$common", commonProperties(Array.from(this._compressedResults.results.values())));
+            this._compressedResults._results.set("$common", commonProperties(Array.from(this._compressedResults._results.values())));
 
         }
         return this._compressedResults;
     }
-
-    get size() {
-        return this.results.size;
-    }
 }
-
 class BrowscapMatcherGroup {
     readonly parsedBrowscapMatcher: ParsedBrowscapMatcher;
     readonly patternTreeRoot: BrowscapMatcherNode;
