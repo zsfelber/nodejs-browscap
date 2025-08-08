@@ -28,7 +28,7 @@ Valid: 10084 / 10339 98%
 matchers: 3.882s
 ```
 
-So the average matching time was 385μsec (in debug mode, including logging).
+So the average matching time was 375μsec (in debug mode, including logging).
 
 # Usage
 
