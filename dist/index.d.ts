@@ -20,9 +20,6 @@ export type DeviceType = "Desktop" | "Tablet" | "Mobile Device" | "Mobile Phone"
 export type DevicePointingMethod = "mouse" | "touchscreen" | "trackball" | "joystick" | "clickwheel" | "stylus";
 export type PlatformCode = "AIX" | "Amiga OS" | "Android for GoogleTV" | "Android" | "Asha" | "ATV OS X" | "Bada" | "BeOS" | "Brew MP" | "Brew" | "BSD" | "CellOS" | "CentOS" | "Chromecast OS" | "ChromeOS" | "CygWin" | "Darwin" | "Debian" | "DragonFly BSD" | "Fedora" | "FirefoxOS" | "FreeBSD" | "Haiku" | "HP-UX" | "Inferno OS" | "iOS" | "ipadOS" | "IRIX64" | "JAVA" | "KaiOS" | "Linux" | "Mac68K" | "macOS" | "MacOSX" | "MacPPC" | "Maemo" | "MAUI" | "MeeGo" | "Miui OS" | "Mobilinux" | "NetBSD" | "Nintendo 3DS" | "Nintendo DS" | "Nintendo DSi" | "Nintendo Switch" | "Nintendo Wii" | "Nintendo WiiU" | "OpenBSD" | "OpenVMS" | "OrbisOS" | "OS/2" | "PalmOS" | "Playstation Vita" | "Red Hat" | "RIM OS" | "RIM Tablet OS" | "RISC OS" | "SailfishOS" | "Series30" | "Series40" | "Solaris" | "SunOS" | "Syllable" | "SymbianOS" | "Tizen" | "Tru64 UNIX" | "Ubuntu Touch" | "Ubuntu" | "Unix" | "webOS" | "Win10" | "Win16" | "Win2000" | "Win31" | "Win32" | "Win64" | "Win7" | "Win8.1" | "Win8" | "Win95" | "Win98" | "WinCE" | "WinME" | "WinMobile" | "WinNT" | "WinPhone" | "WinPhone10" | "WinPhone6" | "WinPhone7.10" | "WinPhone7.5" | "WinPhone7.8" | "WinPhone7" | "WinPhone8.1" | "WinPhone8" | "WinRT8.1" | "WinRT8" | "WinVista" | "WinXP" | "WyderOS" | "Xbox 360 (Mobile View)" | "Xbox 360" | "Xbox OS (Mobile View)" | "Xbox OS 10 (Mobile View)" | "Xbox OS 10" | "Xbox OS" | "Xubuntu";
 export type PlatformKind = "Android" | "iOS" | "Windows" | "WinMobile" | "MacOS" | "Unix" | "Linux" | "Console" | "Device" | "EmulationVirtual" | "EmulationVirtualMobile" | "OtherMobile" | "OtherLinuxMobile" | "OtherPC";
-export declare const PlatformKinds: {
-    [index: string]: PlatformKind;
-};
 export interface BrowscapHeader {
     GJK_Browscap_Version: string | number;
     timestamp: string;
@@ -123,7 +120,7 @@ export declare class BrowscapMatchResult {
     get(key: string): BrowscapRecord;
     set(key: string, record: BrowscapRecord): void;
     get size(): number;
-    get asObj(): MapLike<BrowscapRecord>;
+    get asObj(): Record<string, BrowscapRecord>;
     get asMap(): ReadonlyMap<string, BrowscapRecord>;
     get compressedResults(): BrowscapMatchResult;
 }

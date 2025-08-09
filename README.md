@@ -488,7 +488,7 @@ Runs tests.
 
 | Property | Type | Get | Set |
 | ---------- | ---------- | ---------- | ---------- |
-| `asObj` | `MapLike<BrowscapRecord>` | `yes` | `no` |
+| `asObj` | `Record<string,BrowscapRecord>` | `yes` | `no` |
 
 #### :gear: asMap
 
@@ -508,7 +508,6 @@ Runs tests.
 - [BasicBrowscapUserAgentProperties](#gear-basicbrowscapuseragentproperties)
 - [BasicBrowscapUserAgent](#gear-basicbrowscapuseragent)
 - [BrowscapRecord](#gear-browscaprecord)
-- [MapLike](#gear-maplike)
 
 ### :gear: BrowscapHeader
 
@@ -604,14 +603,6 @@ Runs tests.
 | `RenderingEngine_Version` | `string or number` |  |
 | `RenderingEngine_Description` | `string` |  |
 | `RenderingEngine_Maker` | `string` |  |
-
-
-### :gear: MapLike
-#### MapLike\<T\>
-
-| Indexer | Type |
-| ---------- | ---------- |
-| `[index:string]` | `T` |
 
 
 ## :cocktail: Types

@@ -200,7 +200,7 @@ export type PlatformKind =
     "OtherPC"
 ;
 
-export const PlatformKinds: {[index:string]:PlatformKind} = {
+let PlatformKinds: Record<PlatformCode, PlatformKind> = {
     "AIX":"Unix",    "Amiga OS":"OtherPC",    "Android for GoogleTV":"Android",    "Android":"Android",    "Asha":"Android",
     "ATV OS X":"MacOS",    "Bada":"OtherLinuxMobile",    "BeOS":"OtherPC",    "Brew MP":"Device",    "Brew":"Device",    "BSD":"Unix",
     "CellOS":"Device",    "CentOS":"Linux",    "Chromecast OS":"Device",    "ChromeOS":"OtherLinuxMobile",    "CygWin":"EmulationVirtual",
@@ -638,7 +638,7 @@ export interface MapLike<T> {
 
 export class BrowscapMatchResult {
     private _results = new Map<string, BrowscapRecord>();
-    private _resultObj: MapLike<BrowscapRecord>;
+    private _resultObj: Record<string,BrowscapRecord>;
     private _compressedResults: BrowscapMatchResult;
 
     merge(other: BrowscapMatchResult) {
@@ -664,7 +664,7 @@ export class BrowscapMatchResult {
         return this._results.size;
     }
 
-    get asObj(): MapLike<BrowscapRecord> {
+    get asObj(): Record<string,BrowscapRecord> {
         if (!this._resultObj) {
             this._resultObj = {};
             for (let match of this._results.entries()) {
