@@ -201,6 +201,7 @@ class ParsedBrowscapMatcher {
         this.header = { GJK_Browscap_Version: obj.GJK_Browscap_Version.Version, timestamp: obj.GJK_Browscap_Version.Released };
         console.log("file version:", JSON.stringify(this.header, null, 2));
         this.defaultProperties = JSON.parse(obj.DefaultProperties);
+        replaceUnknown(this.defaultProperties);
         let bodyRecords = [];
         let es = Object.entries(obj);
         es.splice(0, 3);
@@ -391,6 +392,13 @@ function copyProperties(src, dest, properties) {
 function deleteProperties(obj, properties) {
     for (let key in properties) {
         delete obj[key];
+    }
+}
+function replaceUnknown(obj) {
+    for (let key in obj) {
+        if (obj[key] === "unknown") {
+            obj[key] = undefined;
+        }
     }
 }
 function commonProperties(vs) {

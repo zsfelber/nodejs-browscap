@@ -344,6 +344,7 @@ export class ParsedBrowscapMatcher {
         console.log("file version:",JSON.stringify(this.header,null,2));
 
         this.defaultProperties = JSON.parse(obj.DefaultProperties);
+        replaceUnknown(this.defaultProperties);
 
         let bodyRecords: BrowscapRecord[] = [];
         let es: [string,string][] = Object.entries(obj);
@@ -584,6 +585,15 @@ function deleteProperties(obj, properties) {
     for(let key in properties)
     {
         delete obj[key];
+    }
+}
+
+function replaceUnknown(obj) {
+    for(let key in obj)
+    {
+        if (obj[key]==="unknown") {
+            obj[key] = undefined;
+        }
     }
 }
 
