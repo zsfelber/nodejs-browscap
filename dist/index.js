@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = void 0;
+exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = exports.PlatformKinds = void 0;
 exports.findBrowscapRecords = findBrowscapRecords;
 exports.initializeDataFiles = initializeDataFiles;
 exports.initializeDatabase = initializeDatabase;
@@ -149,6 +149,29 @@ class BrowscapMatcherNode {
         return `${this.totalNodesWithResult}/${this.totalNodes}`;
     }
 }
+exports.PlatformKinds = {
+    "AIX": "Unix", "Amiga OS": "OtherPC", "Android for GoogleTV": "Android", "Android": "Android", "Asha": "Android",
+    "ATV OS X": "MacOS", "Bada": "OtherLinuxMobile", "BeOS": "OtherPC", "Brew MP": "Device", "Brew": "Device", "BSD": "Unix",
+    "CellOS": "Device", "CentOS": "Linux", "Chromecast OS": "Device", "ChromeOS": "OtherLinuxMobile", "CygWin": "EmulationVirtual",
+    "Darwin": "Unix", "Debian": "Linux", "DragonFly BSD": "Unix", "Fedora": "Linux", "FirefoxOS": "OtherLinuxMobile",
+    "FreeBSD": "Unix", "Haiku": "OtherPC", "HP-UX": "Unix", "Inferno OS": "EmulationVirtual", "iOS": "iOS", "ipadOS": "iOS",
+    "IRIX64": "Unix", "JAVA": "EmulationVirtual", "KaiOS": "OtherLinuxMobile", "Linux": "Linux", "Mac68K": "EmulationVirtual",
+    "macOS": "MacOS", "MacOSX": "MacOS", "MacPPC": "Unix", "Maemo": "OtherLinuxMobile", "MAUI": "EmulationVirtualMobile",
+    "MeeGo": "OtherLinuxMobile", "Miui OS": "Android", "Mobilinux": "OtherLinuxMobile",
+    "NetBSD": "Unix", "Nintendo 3DS": "Device", "Nintendo DS": "Device", "Nintendo DSi": "Device", "Nintendo Switch": "Device",
+    "Nintendo Wii": "Device", "Nintendo WiiU": "Device", "OpenBSD": "Unix", "OpenVMS": "OtherPC", "OrbisOS": "Console",
+    "OS/2": "OtherPC", "PalmOS": "OtherMobile", "Playstation Vita": "Console", "Red Hat": "Linux", "RIM OS": "OtherMobile",
+    "RIM Tablet OS": "OtherMobile", "RISC OS": "OtherMobile", "SailfishOS": "OtherMobile", "Series30": "OtherMobile", "Series40": "OtherMobile",
+    "Solaris": "Unix", "SunOS": "Unix", "Syllable": "Unix", "SymbianOS": "OtherMobile", "Tizen": "Device", "Tru64 UNIX": "Unix",
+    "Ubuntu Touch": "Linux", "Ubuntu": "Linux", "Unix": "Unix", "webOS": "OtherLinuxMobile", "Win10": "Windows", "Win16": "Windows",
+    "Win2000": "Windows", "Win31": "Windows", "Win32": "Windows", "Win64": "Windows", "Win7": "Windows", "Win8.1": "Windows",
+    "Win8": "Windows", "Win95": "Windows", "Win98": "Windows", "WinCE": "Windows", "WinME": "Windows", "WinMobile": "WinMobile",
+    "WinNT": "Windows", "WinPhone": "WinMobile", "WinPhone10": "WinMobile", "WinPhone6": "WinMobile", "WinPhone7.10": "WinMobile",
+    "WinPhone7.5": "WinMobile", "WinPhone7.8": "WinMobile", "WinPhone7": "WinMobile", "WinPhone8.1": "WinMobile", "WinPhone8": "WinMobile",
+    "WinRT8.1": "Windows", "WinRT8": "Windows", "WinVista": "Windows", "WinXP": "Windows", "WyderOS": "OtherPC", "Xbox 360 (Mobile View)": "Console",
+    "Xbox 360": "Console", "Xbox OS (Mobile View)": "Console", "Xbox OS 10 (Mobile View)": "Console",
+    "Xbox OS 10": "Console", "Xbox OS": "Console", "Xubuntu": "Linux"
+};
 class ParsedBrowscapMatcher {
     constructor() {
         this.patternTreeRootNoAsterix = new BrowscapMatcherNode(null, "");
@@ -183,6 +206,7 @@ class ParsedBrowscapMatcher {
         for (let e of es) {
             let bodyRecord = JSON.parse(e[1]);
             bodyRecord.PropertyName = e[0];
+            bodyRecord.Platform_Kind = exports.PlatformKinds[bodyRecord.Platform];
             bodyRecords.push(bodyRecord);
             if (bodyRecord.Parent === "DefaultProperties") {
                 this.parentProperties.set(bodyRecord.PropertyName, bodyRecord);

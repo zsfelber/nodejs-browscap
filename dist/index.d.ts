@@ -18,7 +18,11 @@ declare class BrowscapMatcherNode {
 export type BrowserType = "Application" | "Browser" | "Email Client" | "Feed Reader" | "Multimedia Player" | "Offline Browser" | "Bot" | "Bot/Crawler" | "Tool";
 export type DeviceType = "Desktop" | "Tablet" | "Mobile Device" | "Mobile Phone" | "TV Device" | "Console" | "Digital Camera" | "Car Entertainment System" | "Ebook Reader";
 export type DevicePointingMethod = "mouse" | "touchscreen" | "trackball" | "joystick" | "clickwheel" | "stylus";
-export type PlatformCode = "Linux" | "WinVista" | "WinXP" | "Win32" | "Win10" | "Win8.1" | "Win8" | "Win7" | "iOS" | "Android" | "Darwin" | "ipadOS" | "MacOSX" | "Miui OS" | "macOS" | "MacPPC" | "Mac68K" | "Brew" | "ChromeOS" | "CentOS" | "Win2000" | "BSD" | "WinPhone8" | "ATV OS X" | "Unix" | "Win64" | "WinNT" | "Ubuntu" | "Ubuntu Touch" | "OpenBSD" | "WinPhone10" | "WinPhone8.1" | "WinPhone" | "WinPhone7" | "SymbianOS" | "Asha" | "Series40" | "JAVA" | "RIM OS" | "Bada" | "WinCE" | "Win98" | "Win95" | "WinME" | "Inferno OS" | "Amiga OS" | "Tizen" | "Syllable" | "FreeBSD" | "MeeGo" | "Maemo" | "WinMobile" | "Mobilinux" | "SunOS" | "Solaris" | "OS/2" | "BeOS" | "Xbox OS 10" | "Xbox OS 10 (Mobile View)" | "RISC OS" | "Debian" | "Xubuntu" | "Chromecast OS" | "NetBSD" | "webOS" | "Android for GoogleTV" | "Brew MP" | "Nintendo Switch" | "Nintendo WiiU" | "Nintendo 3DS" | "Nintendo DS" | "Nintendo Wii" | "Nintendo DSi" | "Xbox OS (Mobile View)" | "WinPhone6" | "WinPhone7.5" | "Xbox 360 (Mobile View)" | "WinPhone7.8" | "SailfishOS" | "Series30" | "CellOS" | "OrbisOS" | "Playstation Vita" | "Haiku" | "MAUI" | "CygWin" | "HP-UX" | "IRIX64" | "AIX" | "Tru64 UNIX" | "RIM Tablet OS" | "Win31" | "DragonFly BSD" | "PalmOS" | "WinRT8.1" | "WinRT8" | "Xbox OS" | "Xbox 360" | "Fedora" | "FirefoxOS" | "KaiOS" | "Red Hat" | "Win16" | "OpenVMS" | "WyderOS" | "WinPhone7.10";
+export type PlatformCode = "AIX" | "Amiga OS" | "Android for GoogleTV" | "Android" | "Asha" | "ATV OS X" | "Bada" | "BeOS" | "Brew MP" | "Brew" | "BSD" | "CellOS" | "CentOS" | "Chromecast OS" | "ChromeOS" | "CygWin" | "Darwin" | "Debian" | "DragonFly BSD" | "Fedora" | "FirefoxOS" | "FreeBSD" | "Haiku" | "HP-UX" | "Inferno OS" | "iOS" | "ipadOS" | "IRIX64" | "JAVA" | "KaiOS" | "Linux" | "Mac68K" | "macOS" | "MacOSX" | "MacPPC" | "Maemo" | "MAUI" | "MeeGo" | "Miui OS" | "Mobilinux" | "NetBSD" | "Nintendo 3DS" | "Nintendo DS" | "Nintendo DSi" | "Nintendo Switch" | "Nintendo Wii" | "Nintendo WiiU" | "OpenBSD" | "OpenVMS" | "OrbisOS" | "OS/2" | "PalmOS" | "Playstation Vita" | "Red Hat" | "RIM OS" | "RIM Tablet OS" | "RISC OS" | "SailfishOS" | "Series30" | "Series40" | "Solaris" | "SunOS" | "Syllable" | "SymbianOS" | "Tizen" | "Tru64 UNIX" | "Ubuntu Touch" | "Ubuntu" | "Unix" | "webOS" | "Win10" | "Win16" | "Win2000" | "Win31" | "Win32" | "Win64" | "Win7" | "Win8.1" | "Win8" | "Win95" | "Win98" | "WinCE" | "WinME" | "WinMobile" | "WinNT" | "WinPhone" | "WinPhone10" | "WinPhone6" | "WinPhone7.10" | "WinPhone7.5" | "WinPhone7.8" | "WinPhone7" | "WinPhone8.1" | "WinPhone8" | "WinRT8.1" | "WinRT8" | "WinVista" | "WinXP" | "WyderOS" | "Xbox 360 (Mobile View)" | "Xbox 360" | "Xbox OS (Mobile View)" | "Xbox OS 10 (Mobile View)" | "Xbox OS 10" | "Xbox OS" | "Xubuntu";
+export type PlatformKind = "Android" | "iOS" | "Windows" | "WinMobile" | "MacOS" | "Unix" | "Linux" | "Console" | "Device" | "EmulationVirtual" | "EmulationVirtualMobile" | "OtherMobile" | "OtherLinuxMobile" | "OtherPC";
+export declare const PlatformKinds: {
+    [index: string]: PlatformKind;
+};
 export interface BrowscapHeader {
     GJK_Browscap_Version: string | number;
     timestamp: string;
@@ -52,6 +56,7 @@ export interface BrowscapRecord {
     MajorVer: string;
     MinorVer: string;
     Platform: PlatformCode;
+    Platform_Kind: PlatformKind;
     Platform_Version: string | number;
     Platform_Description: string;
     Platform_Bits: number;
