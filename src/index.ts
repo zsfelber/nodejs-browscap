@@ -351,6 +351,10 @@ export class ParsedBrowscapMatcher {
             let bodyRecord: BrowscapRecord = JSON.parse(e[1]);
             bodyRecord.PropertyName = e[0];
             bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
+            if (bodyRecord.Platform && !bodyRecord.Platform_Kind) {
+                console.log("ERROR Platform:",bodyRecord.Platform,"Platform_Kind:",bodyRecord.Platform_Kind);
+                process.exit(1);
+            }
             bodyRecords.push(bodyRecord);
             if (bodyRecord.Parent==="DefaultProperties") {
                 this.parentProperties.set(bodyRecord.PropertyName, bodyRecord);
@@ -702,6 +706,10 @@ export class BrowscapMatchResult {
             compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults._results, "PropertyName", "UserAgents");
 
             for (let compres of this._compressedResults._results.values()) {
+                if (compres.Platform && !compres.Platform_Kind) {
+                    console.log("ERROR Platform:",compres.Platform,"Platform_Kind:",compres.Platform_Kind);
+                    process.exit(1);
+                }
                 let vs2 = Array.from(compres.UserAgents);
                 let uas = new Map<string, BasicBrowscapUserAgent>();
                 compressObjectIntoTree(vs2, uaUniqueProps, uas, "PropertyName", "_UserAgentPatterns");
@@ -1188,6 +1196,10 @@ export async function testBrowscap() {
 
 if (argv.indexOf("--initBrowscap")!=-1) {
     initializeDataFiles();
+}
+
+if (argv.indexOf("--initBrowscapDb")!=-1) {
+    initializeDatabase();
 }
 
 if (argv.indexOf("--testBrowscap")!=-1) {

@@ -24,6 +24,7 @@
   "main": "src/index.ts",
   "scripts": {
     "init": "node -r esbuild-register src/index.ts --initBrowscap",
+    "test-init": "node --expose-gc -r esbuild-register src/index.ts --initBrowscapDb",
     "test": "node --expose-gc -r esbuild-register src/index.ts --testBrowscap",
     "tsdoc": "tsdoc --src=src/index.ts --types"
   },
