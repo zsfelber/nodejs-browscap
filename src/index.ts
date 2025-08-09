@@ -11,6 +11,7 @@ import AdmZip from "adm-zip";
 //const __dirname = dirname(__filename);
 
 let debug = false;
+let testIntegrity = true;
 
 function reversedString(input: string) {
     let r = input.split('').reverse().join('');
@@ -1005,6 +1006,10 @@ export async function testBrowscap() {
         let lstresult = findBrowscapRecords(userAgent);
         if (lstresult.size) ++subvalid;
         ++subtotal;
+
+        if (testIntegrity) {
+            lstresult.compressedResults;
+        }
     };
     function printStats() {
         console.log("Valid:",subvalid,"/",subtotal,(subvalid*100/subtotal).toFixed(0)+"%");
