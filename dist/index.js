@@ -407,30 +407,38 @@ function compressObjectIntoTree(vs0, uniqueProps, results, primaryKey, groupArra
 }
 class BrowscapMatchResult {
     constructor() {
-        this.results = new Map();
+        this._results = new Map();
     }
     merge(other) {
-        for (let match of other.results.entries()) {
-            this.results.set(match[0], match[1]);
+        for (let match of other._results.entries()) {
+            this._results.set(match[0], match[1]);
         }
     }
     mergeReversed(other) {
-        for (let match of other.results.entries()) {
-            this.results.set(reversedString(match[0]), match[1]);
+        for (let match of other._results.entries()) {
+            this._results.set(reversedString(match[0]), match[1]);
         }
+    }
+    get(key) {
+        return this._results.get(key);
     }
     set(key, record) {
-        this.results.set(key, record);
+        this._results.set(key, record);
     }
-    toObj() {
-        let result = {};
-        for (let match of this.results.entries()) {
-            result[match[0]] = match[1];
+    get size() {
+        return this._results.size;
+    }
+    get asObj() {
+        if (!this._resultObj) {
+            this._resultObj = {};
+            for (let match of this._results.entries()) {
+                this._resultObj[match[0]] = match[1];
+            }
         }
-        return result;
+        return this._resultObj;
     }
     get asMap() {
-        return this.results;
+        return this._results;
     }
     get compressedResults() {
         if (!this._compressedResults) {
@@ -450,9 +458,9 @@ class BrowscapMatchResult {
             let uaUniqueProps = {
                 PropertyName: 1
             };
-            let vs1 = Array.from(this.results.values());
-            compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults.results, "PropertyName", "UserAgents");
-            for (let compres of this._compressedResults.results.values()) {
+            let vs1 = Array.from(this._results.values());
+            compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults._results, "PropertyName", "UserAgents");
+            for (let compres of this._compressedResults._results.values()) {
                 let vs2 = Array.from(compres.UserAgents);
                 let uas = new Map();
                 compressObjectIntoTree(vs2, uaUniqueProps, uas, "PropertyName", "_UserAgentPatterns");
@@ -462,12 +470,9 @@ class BrowscapMatchResult {
                     delete compua["_UserAgentPatterns"];
                 }
             }
-            this._compressedResults.results.set("$common", commonProperties(Array.from(this._compressedResults.results.values())));
+            this._compressedResults._results.set("$common", commonProperties(Array.from(this._compressedResults._results.values())));
         }
         return this._compressedResults;
-    }
-    get size() {
-        return this.results.size;
     }
 }
 exports.BrowscapMatchResult = BrowscapMatchResult;
@@ -605,7 +610,7 @@ function findBrowscapRecords(sample) {
     let matches = bcmatch(parsedBrowscapMatcher, sample);
     if (debug) {
         console.log("Records:");
-        console.log(JSON.stringify(matches.compressedResults.toObj(), null, 2));
+        console.log(JSON.stringify(matches.compressedResults.asObj, null, 2));
     }
     return matches;
 }
@@ -641,14 +646,16 @@ function initializeDatabase() {
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
-function uninitializeDatabase(warngc = true) {
+function uninitializeDatabase(gc = true, warngc = true) {
     global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
-    if (global.gc) {
-        global.gc();
-    }
-    else if (warngc) {
-        console.log('Garbage collection unavailable.  Pass --expose-gc '
-            + 'when launching node to enable forced garbage collection.');
+    if (gc) {
+        if (global.gc) {
+            global.gc();
+        }
+        else if (warngc) {
+            console.log('Garbage collection unavailable.  Pass --expose-gc '
+                + 'when launching node to enable forced garbage collection.');
+        }
     }
 }
 /**

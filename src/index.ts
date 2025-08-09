@@ -1008,14 +1008,16 @@ export function initializeDatabase() {
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
-export function uninitializeDatabase(warngc=true) {
+export function uninitializeDatabase(gc=true,warngc=true) {
     global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
 
-    if (global.gc) {
-        global.gc();
-    } else if (warngc) {
-        console.log('Garbage collection unavailable.  Pass --expose-gc '
-        + 'when launching node to enable forced garbage collection.');
+    if (gc) {
+        if (global.gc) {
+            global.gc();
+        } else if (warngc) {
+            console.log('Garbage collection unavailable.  Pass --expose-gc '
+            + 'when launching node to enable forced garbage collection.');
+        }
     }
 }
 

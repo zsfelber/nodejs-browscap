@@ -15,6 +15,10 @@ declare class BrowscapMatcherNode {
     treeDump(tab?: string): string;
     get cnttxt(): string;
 }
+export type BrowserType = "Application" | "Browser" | "Email Client" | "Feed Reader" | "Multimedia Player" | "Offline Browser" | "Bot" | "Bot/Crawler" | "Tool";
+export type DeviceType = "Desktop" | "Tablet" | "Mobile Device" | "Mobile Phone" | "TV Device" | "Console" | "Digital Camera" | "Car Entertainment System" | "Ebook Reader";
+export type DevicePointingMethod = "mouse" | "touchscreen" | "trackball" | "joystick" | "clickwheel" | "stylus";
+export type PlatformCode = "Linux" | "WinVista" | "WinXP" | "Win32" | "Win10" | "Win8.1" | "Win8" | "Win7" | "iOS" | "Android" | "Darwin" | "ipadOS" | "MacOSX" | "Miui OS" | "macOS" | "MacPPC" | "Mac68K" | "Brew" | "ChromeOS" | "CentOS" | "Win2000" | "BSD" | "WinPhone8" | "ATV OS X" | "Unix" | "Win64" | "WinNT" | "Ubuntu" | "Ubuntu Touch" | "OpenBSD" | "WinPhone10" | "WinPhone8.1" | "WinPhone" | "WinPhone7" | "SymbianOS" | "Asha" | "Series40" | "JAVA" | "RIM OS" | "Bada" | "WinCE" | "Win98" | "Win95" | "WinME" | "Inferno OS" | "Amiga OS" | "Tizen" | "Syllable" | "FreeBSD" | "MeeGo" | "Maemo" | "WinMobile" | "Mobilinux" | "SunOS" | "Solaris" | "OS/2" | "BeOS" | "Xbox OS 10" | "Xbox OS 10 (Mobile View)" | "RISC OS" | "Debian" | "Xubuntu" | "Chromecast OS" | "NetBSD" | "webOS" | "Android for GoogleTV" | "Brew MP" | "Nintendo Switch" | "Nintendo WiiU" | "Nintendo 3DS" | "Nintendo DS" | "Nintendo Wii" | "Nintendo DSi" | "Xbox OS (Mobile View)" | "WinPhone6" | "WinPhone7.5" | "Xbox 360 (Mobile View)" | "WinPhone7.8" | "SailfishOS" | "Series30" | "CellOS" | "OrbisOS" | "Playstation Vita" | "Haiku" | "MAUI" | "CygWin" | "HP-UX" | "IRIX64" | "AIX" | "Tru64 UNIX" | "RIM Tablet OS" | "Win31" | "DragonFly BSD" | "PalmOS" | "WinRT8.1" | "WinRT8" | "Xbox OS" | "Xbox 360" | "Fedora" | "FirefoxOS" | "KaiOS" | "Red Hat" | "Win16" | "OpenVMS" | "WyderOS" | "WinPhone7.10";
 export interface BrowscapHeader {
     GJK_Browscap_Version: string | number;
     timestamp: string;
@@ -40,14 +44,14 @@ export interface BrowscapRecord {
     Parent: string;
     Comment: string;
     Browser: string;
-    Browser_Type: string;
+    Browser_Type: BrowserType;
     Browser_Bits: number;
     Browser_Maker: string;
     Browser_Modus: string;
     Version: string | number;
     MajorVer: string;
     MinorVer: string;
-    Platform: string;
+    Platform: PlatformCode;
     Platform_Version: string | number;
     Platform_Description: string;
     Platform_Bits: number;
@@ -77,8 +81,8 @@ export interface BrowscapRecord {
     AolVersion: string | number;
     Device_Name: string;
     Device_Maker: string;
-    Device_Type: string;
-    Device_Pointing_Method: string;
+    Device_Type: DeviceType;
+    Device_Pointing_Method: DevicePointingMethod;
     Device_Code_Name: string;
     Device_Brand_Name: string;
     RenderingEngine_Name: string;
@@ -102,16 +106,21 @@ export declare class ParsedBrowscapMatcher {
     build(bodyRecords: BrowscapRecord[]): void;
     mergeProperties(properties: BrowscapRecord): BrowscapRecord;
 }
+export interface MapLike<T> {
+    [index: string]: T;
+}
 export declare class BrowscapMatchResult {
-    readonly results: Map<string, BrowscapRecord>;
+    private _results;
+    private _resultObj;
     private _compressedResults;
     merge(other: BrowscapMatchResult): void;
     mergeReversed(other: BrowscapMatchResult): void;
+    get(key: string): BrowscapRecord;
     set(key: string, record: BrowscapRecord): void;
-    toObj(): {};
-    get asMap(): Map<string, BrowscapRecord>;
-    get compressedResults(): BrowscapMatchResult;
     get size(): number;
+    get asObj(): MapLike<BrowscapRecord>;
+    get asMap(): ReadonlyMap<string, BrowscapRecord>;
+    get compressedResults(): BrowscapMatchResult;
 }
 /**
  * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
@@ -128,7 +137,7 @@ export declare function initializeDatabase(): ParsedBrowscapMatcher;
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
-export declare function uninitializeDatabase(warngc?: boolean): void;
+export declare function uninitializeDatabase(gc?: boolean, warngc?: boolean): void;
 /**
  * Runs tests.
  */

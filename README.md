@@ -345,7 +345,7 @@ Deletes references to all preloaded data, marking as target for garbage collecto
 
 | Function | Type |
 | ---------- | ---------- |
-| `uninitializeDatabase` | `(warngc?: boolean) => void` |
+| `uninitializeDatabase` | `(gc?: boolean, warngc?: boolean) => void` |
 
 ### :gear: testBrowscap
 
@@ -547,14 +547,14 @@ Runs tests.
 | `Parent` | `string` |  |
 | `Comment` | `string` |  |
 | `Browser` | `string` |  |
-| `Browser_Type` | `string` |  |
+| `Browser_Type` | `BrowserType` |  |
 | `Browser_Bits` | `number` |  |
 | `Browser_Maker` | `string` |  |
 | `Browser_Modus` | `string` |  |
 | `Version` | `string or number` |  |
 | `MajorVer` | `string` |  |
 | `MinorVer` | `string` |  |
-| `Platform` | `string` |  |
+| `Platform` | `PlatformCode` |  |
 | `Platform_Version` | `string or number` |  |
 | `Platform_Description` | `string` |  |
 | `Platform_Bits` | `number` |  |
@@ -584,8 +584,8 @@ Runs tests.
 | `AolVersion` | `string or number` |  |
 | `Device_Name` | `string` |  |
 | `Device_Maker` | `string` |  |
-| `Device_Type` | `string` |  |
-| `Device_Pointing_Method` | `string` |  |
+| `Device_Type` | `DeviceType` |  |
+| `Device_Pointing_Method` | `DevicePointingMethod` |  |
 | `Device_Code_Name` | `string` |  |
 | `Device_Brand_Name` | `string` |  |
 | `RenderingEngine_Name` | `string` |  |
@@ -600,3 +600,36 @@ Runs tests.
 | Indexer | Type |
 | ---------- | ---------- |
 | `[index:string]` | `T` |
+
+
+## :cocktail: Types
+
+- [BrowserType](#gear-browsertype)
+- [DeviceType](#gear-devicetype)
+- [DevicePointingMethod](#gear-devicepointingmethod)
+- [PlatformCode](#gear-platformcode)
+
+### :gear: BrowserType
+
+| Type | Type |
+| ---------- | ---------- |
+| `BrowserType` | `Application"| "Browser"| "Email Client"| "Feed Reader"| "Multimedia Player"| "Offline Browser"| "Bot"| "Bot/Crawler"| "Tool` |
+
+### :gear: DeviceType
+
+| Type | Type |
+| ---------- | ---------- |
+| `DeviceType` | `Desktop"| "Tablet"| "Mobile Device"| "Mobile Phone"| "TV Device"| "Console"| "Digital Camera"| "Car Entertainment System"| "Ebook Reader` |
+
+### :gear: DevicePointingMethod
+
+| Type | Type |
+| ---------- | ---------- |
+| `DevicePointingMethod` | `mouse"| "touchscreen"| "trackball"| "joystick"| "clickwheel"| "stylus` |
+
+### :gear: PlatformCode
+
+| Type | Type |
+| ---------- | ---------- |
+| `PlatformCode` | `Linux"| "WinVista"| "WinXP"| "Win32"| "Win10"| "Win8.1"| "Win8"| "Win7"| "iOS"| "Android"| "Darwin"| "ipadOS"| "MacOSX"| "Miui OS"| "macOS"| "MacPPC"| "Mac68K"| "Brew"| "ChromeOS"| "CentOS"| "Win2000"| "BSD"| "WinPhone8"| "ATV OS X"| "Unix"| "Win64"| "WinNT"| "Ubuntu"| "Ubuntu Touch"| "OpenBSD"| "WinPhone10"| "WinPhone8.1"| "WinPhone"| "WinPhone7"| "SymbianOS"| "Asha"| "Series40"| "JAVA"| "RIM OS"| "Bada"| "WinCE"| "Win98"| "Win95"| "WinME"| "Inferno OS"| "Amiga OS"| "Tizen"| "Syllable"| "FreeBSD"| "MeeGo"| "Maemo"| "WinMobile"| "Mobilinux"| "SunOS"| "Solaris"| "OS/2"| "BeOS"| "Xbox OS 10"| "Xbox OS 10 (Mobile View)"| "RISC OS"| "Debian"| "Xubuntu"| "Chromecast OS"| "NetBSD"| "webOS"| "Android for GoogleTV"| "Brew MP"| "Nintendo Switch"| "Nintendo WiiU"| "Nintendo 3DS"| "Nintendo DS"| "Nintendo Wii"| "Nintendo DSi"| "Xbox OS (Mobile View)"| "WinPhone6"| "WinPhone7.5"| "Xbox 360 (Mobile View)"| "WinPhone7.8"| "SailfishOS"| "Series30"| "CellOS"| "OrbisOS"| "Playstation Vita"| "Haiku"| "MAUI"| "CygWin"| "HP-UX"| "IRIX64"| "AIX"| "Tru64 UNIX"| "RIM Tablet OS"| "Win31"| "DragonFly BSD"| "PalmOS"| "WinRT8.1"| "WinRT8"| "Xbox OS"| "Xbox 360"| "Fedora"| "FirefoxOS"| "KaiOS"| "Red Hat"| "Win16"| "OpenVMS"| "WyderOS"| "WinPhone7.10` |
+
