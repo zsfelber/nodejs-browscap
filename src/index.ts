@@ -11,7 +11,7 @@ import AdmZip from "adm-zip";
 //const __dirname = dirname(__filename);
 
 let debug = false;
-let testIntegrity = true;
+let testIntegrity = false;
 
 function reversedString(input: string) {
     let r = input.split('').reverse().join('');
@@ -351,10 +351,12 @@ export class ParsedBrowscapMatcher {
         for (let e of es) {
             let bodyRecord: BrowscapRecord = JSON.parse(e[1]);
             bodyRecord.PropertyName = e[0];
-            bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
-            if (bodyRecord.Platform && !bodyRecord.Platform_Kind) {
-                console.log("ERROR Platform:",bodyRecord.Platform,"Platform_Kind:",bodyRecord.Platform_Kind);
-                process.exit(1);
+            if (bodyRecord.Platform) {
+                bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
+                if (!bodyRecord.Platform_Kind) {
+                    console.log("ERROR Platform:",bodyRecord.Platform,"Platform_Kind:",bodyRecord.Platform_Kind);
+                    process.exit(1);
+                }
             }
             bodyRecords.push(bodyRecord);
             if (bodyRecord.Parent==="DefaultProperties") {
@@ -707,10 +709,10 @@ export class BrowscapMatchResult {
             compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults._results, "PropertyName", "UserAgents");
 
             for (let compres of this._compressedResults._results.values()) {
-                if (compres.Platform && !compres.Platform_Kind) {
-                    console.log("ERROR Platform:",compres.Platform,"Platform_Kind:",compres.Platform_Kind);
-                    process.exit(1);
-                }
+                //if (compres.Platform && !compres.Platform_Kind) {
+                //    console.log("ERROR Platform:",compres.Platform,"Platform_Kind:",compres.Platform_Kind);
+                //    process.exit(1);
+                //}
                 let vs2 = Array.from(compres.UserAgents);
                 let uas = new Map<string, BasicBrowscapUserAgent>();
                 compressObjectIntoTree(vs2, uaUniqueProps, uas, "PropertyName", "_UserAgentPatterns");
@@ -782,6 +784,10 @@ class BrowscapMatcherGroup {
                     if (modelNext.leafResult) {
                         if (nextStartPos == this.endPosition || modelNext.asterixAfterLeaf) {
                             let value = parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
+                            //if (value.Platform && !value.Platform_Kind) {
+                            //    console.log("ERROR Platform:",value.Platform,"Platform_Kind:",value.Platform_Kind);
+                            //    process.exit(1);
+                            //}
                             this.results.set(modelNext.leafResult, value);
                             found = true;
                         }

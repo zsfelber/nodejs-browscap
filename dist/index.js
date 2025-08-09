@@ -53,6 +53,7 @@ const adm_zip_1 = __importDefault(require("adm-zip"));
 //const __filename = fileURLToPath(import.meta.url);
 //const __dirname = dirname(__filename);
 let debug = false;
+let testIntegrity = false;
 function reversedString(input) {
     let r = input.split('').reverse().join('');
     return r;
@@ -206,7 +207,13 @@ class ParsedBrowscapMatcher {
         for (let e of es) {
             let bodyRecord = JSON.parse(e[1]);
             bodyRecord.PropertyName = e[0];
-            bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
+            if (bodyRecord.Platform) {
+                bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
+                if (!bodyRecord.Platform_Kind) {
+                    console.log("ERROR Platform:", bodyRecord.Platform, "Platform_Kind:", bodyRecord.Platform_Kind);
+                    process.exit(1);
+                }
+            }
             bodyRecords.push(bodyRecord);
             if (bodyRecord.Parent === "DefaultProperties") {
                 this.parentProperties.set(bodyRecord.PropertyName, bodyRecord);
@@ -485,6 +492,10 @@ class BrowscapMatchResult {
             let vs1 = Array.from(this._results.values());
             compressObjectIntoTree(vs1, mainUniqueProps, this._compressedResults._results, "PropertyName", "UserAgents");
             for (let compres of this._compressedResults._results.values()) {
+                //if (compres.Platform && !compres.Platform_Kind) {
+                //    console.log("ERROR Platform:",compres.Platform,"Platform_Kind:",compres.Platform_Kind);
+                //    process.exit(1);
+                //}
                 let vs2 = Array.from(compres.UserAgents);
                 let uas = new Map();
                 compressObjectIntoTree(vs2, uaUniqueProps, uas, "PropertyName", "_UserAgentPatterns");
@@ -538,6 +549,10 @@ class BrowscapMatcherGroup {
                     if (modelNext.leafResult) {
                         if (nextStartPos == this.endPosition || modelNext.asterixAfterLeaf) {
                             let value = parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
+                            //if (value.Platform && !value.Platform_Kind) {
+                            //    console.log("ERROR Platform:",value.Platform,"Platform_Kind:",value.Platform_Kind);
+                            //    process.exit(1);
+                            //}
                             this.results.set(modelNext.leafResult, value);
                             found = true;
                         }
@@ -698,6 +713,9 @@ async function testBrowscap() {
         if (lstresult.size)
             ++subvalid;
         ++subtotal;
+        if (testIntegrity) {
+            lstresult.compressedResults;
+        }
     }
     ;
     function printStats() {
@@ -859,6 +877,9 @@ async function testBrowscap() {
 }
 if (process_1.argv.indexOf("--initBrowscap") != -1) {
     initializeDataFiles();
+}
+if (process_1.argv.indexOf("--initBrowscapDb") != -1) {
+    initializeDatabase();
 }
 if (process_1.argv.indexOf("--testBrowscap") != -1) {
     testBrowscap();
