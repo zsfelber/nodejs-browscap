@@ -53,7 +53,7 @@ if (debug) {
 
 ```
 
-## Output
+#### Output
 
 ```
 
@@ -259,7 +259,8 @@ Records:
 
 
 ```
-cd node_modules/nodejs-browscap
+cd <a safe dir>
+gh repo clone zsfelber/nodejs-browscap && cd nodejs-browscap
 npm run test
 ```
 
