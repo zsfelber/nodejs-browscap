@@ -24,11 +24,11 @@ initializeDatabase: 9.690s
 Searching algorithm is quite efficient. Current Browscap pattern database consists of 446k records, and any requested sample is being matched against each of them. (It returns all possible matched records.) Still, on my desktop env:
 
 ```
-Valid: 10084 / 10339 98%
-matchers: 3.882s
+matchers: 18.134s
+matchers:  18134 msecs   items cnt: 63500   286 µsecs per item
 ```
 
-So the average matching time was 375μsec (in debug mode, including logging).
+So the average matching time was 286 μsecs.
 
 # Usage
 
@@ -265,6 +265,53 @@ npm run test
 
 Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). 
 Latter one is about 1 Gbyte currently. See (#impl)
+
+#### Output is as follows
+
+```
+nodejs-browscap@1.0.3 test
+> node --expose-gc -r esbuild-register src/index.ts --testBrowscap
+
+...
+
+Generate search tree...
+Total fragment nodes   normal: 4461288/161193   reverse: 9/85
+Total patterns: 446406   ..*? : 445348/862619   *.. : 2/8   *..* : 1056/1813
+buildSearchTree: 8.288s
+initializeDatabase: 9.908s
+
+
+Test matcher engine basics (all should be 100%)
+--------------------------------------------------
+Case ..
+Valid: 1000 / 1000 100%
+Case ..*
+Valid: 1000 / 1000 100%
+Case *.. (reverse matcher)
+Valid: 1000 / 1000 100%
+Case *..*
+Valid: 200 / 200 100%
+
+
+...
+
+ALL
+--------------------------
+Valid: 10045 / 10300 98%
+
+
+SELF-TEST (should be 100%)
+------------------------------------------------------
+
+Success. Valid: 50000 / 50000 100%
+matchers: 18.134s
+matchers:  18134 msecs   items cnt: 63500   286 µsecs per item
+tests: 28.044s
+
+
+```
+
+
 
 # Uninitializing
 
