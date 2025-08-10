@@ -166,6 +166,24 @@ export type DevicePointingMethod =
     "clickwheel"|
     "stylus";
 
+export type RenderingEngineCode =
+    "Gecko"|
+    "Trident"|
+    "WebKit"|
+    "Blink"|
+    "U3"|
+    "X5"|
+    "T7"|
+    "T5"|
+    "U2"|
+    "Presto"|
+    "Edge"|
+    "NetFront"|
+    "KHTML"|
+    "Goanna"|
+    "Tasman"|
+    "Clecko";
+
 export type PlatformCode =
     "AIX"|    "Amiga OS"|    "Android for GoogleTV"|    "Android"|    "Asha"|
     "ATV OS X"|    "Bada"|    "BeOS"|    "Brew MP"|    "Brew"|    "BSD"|
@@ -302,7 +320,7 @@ export interface BrowscapRecord {
     Device_Pointing_Method:DevicePointingMethod;
     Device_Code_Name:string;
     Device_Brand_Name:string;
-    RenderingEngine_Name:string;
+    RenderingEngine_Name:RenderingEngineCode;
     RenderingEngine_Version:string|number;
     RenderingEngine_Description:string;
     RenderingEngine_Maker:string;

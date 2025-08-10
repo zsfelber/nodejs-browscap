@@ -18,6 +18,7 @@ declare class BrowscapMatcherNode {
 export type BrowserType = "Application" | "Browser" | "Email Client" | "Feed Reader" | "Multimedia Player" | "Offline Browser" | "Bot" | "Bot/Crawler" | "Tool";
 export type DeviceType = "Desktop" | "Tablet" | "Mobile Device" | "Mobile Phone" | "TV Device" | "Console" | "Digital Camera" | "Car Entertainment System" | "Ebook Reader";
 export type DevicePointingMethod = "mouse" | "touchscreen" | "trackball" | "joystick" | "clickwheel" | "stylus";
+export type RenderingEngineCode = "Gecko" | "Trident" | "WebKit" | "Blink" | "U3" | "X5" | "T7" | "T5" | "U2" | "Presto" | "Edge" | "NetFront" | "KHTML" | "Goanna" | "Tasman" | "Clecko";
 export type PlatformCode = "AIX" | "Amiga OS" | "Android for GoogleTV" | "Android" | "Asha" | "ATV OS X" | "Bada" | "BeOS" | "Brew MP" | "Brew" | "BSD" | "CellOS" | "CentOS" | "Chromecast OS" | "ChromeOS" | "CygWin" | "Darwin" | "Debian" | "DragonFly BSD" | "Fedora" | "FirefoxOS" | "FreeBSD" | "Haiku" | "HP-UX" | "Inferno OS" | "iOS" | "ipadOS" | "IRIX64" | "JAVA" | "KaiOS" | "Linux" | "Mac68K" | "macOS" | "MacOSX" | "MacPPC" | "Maemo" | "MAUI" | "MeeGo" | "Miui OS" | "Mobilinux" | "NetBSD" | "Nintendo 3DS" | "Nintendo DS" | "Nintendo DSi" | "Nintendo Switch" | "Nintendo Wii" | "Nintendo WiiU" | "OpenBSD" | "OpenVMS" | "OrbisOS" | "OS/2" | "PalmOS" | "Playstation Vita" | "Red Hat" | "RIM OS" | "RIM Tablet OS" | "RISC OS" | "SailfishOS" | "Series30" | "Series40" | "Solaris" | "SunOS" | "Syllable" | "SymbianOS" | "Tizen" | "Tru64 UNIX" | "Ubuntu Touch" | "Ubuntu" | "Unix" | "webOS" | "Win10" | "Win16" | "Win2000" | "Win31" | "Win32" | "Win64" | "Win7" | "Win8.1" | "Win8" | "Win95" | "Win98" | "WinCE" | "WinME" | "WinMobile" | "WinNT" | "WinPhone" | "WinPhone10" | "WinPhone6" | "WinPhone7.10" | "WinPhone7.5" | "WinPhone7.8" | "WinPhone7" | "WinPhone8.1" | "WinPhone8" | "WinRT8.1" | "WinRT8" | "WinVista" | "WinXP" | "WyderOS" | "Xbox 360 (Mobile View)" | "Xbox 360" | "Xbox OS (Mobile View)" | "Xbox OS 10 (Mobile View)" | "Xbox OS 10" | "Xbox OS" | "Xubuntu";
 export type PlatformKind = "Android" | "iOS" | "Windows" | "WinMobile" | "MacOS" | "Unix" | "Linux" | "Console" | "Device" | "EmulationVirtual" | "EmulationVirtualMobile" | "OtherMobile" | "OtherLinuxMobile" | "OtherPC";
 export declare const PlatformKinds: Record<PlatformCode, PlatformKind>;
@@ -88,7 +89,7 @@ export interface BrowscapRecord {
     Device_Pointing_Method: DevicePointingMethod;
     Device_Code_Name: string;
     Device_Brand_Name: string;
-    RenderingEngine_Name: string;
+    RenderingEngine_Name: RenderingEngineCode;
     RenderingEngine_Version: string | number;
     RenderingEngine_Description: string;
     RenderingEngine_Maker: string;

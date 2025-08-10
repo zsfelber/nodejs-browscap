@@ -652,7 +652,7 @@ Runs tests.
 | `Device_Pointing_Method` | `DevicePointingMethod` |  |
 | `Device_Code_Name` | `string` |  |
 | `Device_Brand_Name` | `string` |  |
-| `RenderingEngine_Name` | `string` |  |
+| `RenderingEngine_Name` | `RenderingEngineCode` |  |
 | `RenderingEngine_Version` | `string or number` |  |
 | `RenderingEngine_Description` | `string` |  |
 | `RenderingEngine_Maker` | `string` |  |
@@ -663,6 +663,7 @@ Runs tests.
 - [BrowserType](#gear-browsertype)
 - [DeviceType](#gear-devicetype)
 - [DevicePointingMethod](#gear-devicepointingmethod)
+- [RenderingEngineCode](#gear-renderingenginecode)
 - [PlatformCode](#gear-platformcode)
 - [PlatformKind](#gear-platformkind)
 
@@ -695,4 +696,10 @@ Runs tests.
 | Type | Type |
 | ---------- | ---------- |
 | `PlatformKind` | `"Android"\| "iOS"\| "Windows"\| "WinMobile"\| "MacOS"\| "Unix"\| "Linux"\| "Console"\| "Device"\| "EmulationVirtual"\| "EmulationVirtualMobile"\| "OtherMobile"\| "OtherLinuxMobile"\| "OtherPC"` |
+
+### :gear: RenderingEngineCode
+
+| Type | Type |
+| ---------- | ---------- |
+| `RenderingEngineCode` | `"Gecko"\| "Trident"\| "WebKit"\| "Blink"\| "U3"\| "X5"\| "T7"\| "T5"\| "U2"\| "Presto"\| "Edge"\| "NetFront"\| "KHTML"\| "Goanna"\| "Tasman"\| "Clecko"` |
 
