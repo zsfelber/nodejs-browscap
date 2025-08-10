@@ -1039,19 +1039,35 @@ export async function testBrowscap() {
             lstresult.compressedResults;
         }
     };
-    function printStats() {
-        console.log("Valid:",subvalid,"/",subtotal,(subvalid*100/subtotal).toFixed(0)+"%");
+    function printStats(strict=false) {
+        let pref="";
+        if (strict) {
+            if (subvalid === subtotal) {
+                pref = "Success. ";
+            } else {
+                pref = "FAILURE. ";
+            }
+        }
+        console.log(pref+"Valid:",subvalid,"/",subtotal,(subvalid*100/subtotal).toFixed(0)+"%");
         valid += subvalid;
         total += subtotal;
         subvalid=0;
         subtotal=0;
     }
-    function printAllStats() {
+    function printAllStats(strict=false) {
         console.log("");
         console.log("");
         console.log("ALL");
         console.log("--------------------------");
-        console.log("Valid:",valid,"/",total,(valid*100/total).toFixed(0)+"%");
+        let pref="";
+        if (strict) {
+            if (valid === total) {
+                pref = "Success. ";
+            } else {
+                pref = "FAILURE. ";
+            }
+        }
+        console.log(pref+"Valid:",valid,"/",total,(valid*100/total).toFixed(0)+"%");
         valid=0;
         total=0;
     }
@@ -1178,7 +1194,7 @@ export async function testBrowscap() {
     }
     printStats();
 
-    printAllStats();
+    printAllStats(true);
 
 
 
@@ -1302,7 +1318,7 @@ export async function testBrowscap() {
         add(bcrec.PropertyName);
     }
     console.log("");
-    printStats();
+    printStats(true);
 
 
     console.timeEnd('matchers'); //Prints something like that-> tests: 11374.004ms
