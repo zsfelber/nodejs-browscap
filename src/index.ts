@@ -1128,9 +1128,9 @@ export async function testBrowscap() {
         return pref+words.join(" ")+postf;
     }
     function tastSubcase(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
-        let expect = desc.to.charCodeAt(1)-desc.from.charCodeAt(1)+1;
+        let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
         for (let i=0; i<100; ++i) {
-            bmatchUnitTest(machter, genSentence(desc.pref, desc.postf, desc.from, desc.to), both?expect:0);
+            bmatchUnitTest(machter, genSentence(desc.pref, "", desc.from, desc.to), both?expect:0);
             bmatchUnitTest(machter, genSentence(desc.pref, desc.postf, desc.from, desc.to), expect);
         }
     }
