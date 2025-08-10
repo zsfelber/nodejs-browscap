@@ -1110,10 +1110,11 @@ export async function testBrowscap() {
         byCapital.push(w);
     }
 
-    console.log("Basic test matcher engine (all should be 100%)");
+    console.log("");
+    console.log("");
+    console.log("Test matcher engine basics (all should be 100%)");
     console.log("--------------------------------------------------");
-    function buildAbcMatcher(pref:string,postf:string,from='a',to='z') {
-        let fakeBrowscap = new ParsedBrowscapMatcher();
+    function getMatcherAbc(pref:string,postf:string,from='a',to='z') {
         let abc:BrowscapRecord[] = [];
         let a = from.charCodeAt(0);
         let z = to.charCodeAt(0);
@@ -1126,12 +1127,9 @@ export async function testBrowscap() {
             abc.push(rec);
             if (debug) console.log(rec);
         }
-        fakeBrowscap.build(abc);
-        fakeBrowscap.defaultProperties = {} as BrowscapRecord;
-        return fakeBrowscap;
+        return abc;
     }
-    function buildZyxMatcher(pref:string,postf:string,from='a',to='z') {
-        let fakeBrowscap = new ParsedBrowscapMatcher();
+    function getMatcherZyx(pref:string,postf:string,from='a',to='z') {
         let abc:BrowscapRecord[] = [];
         let a = from.charCodeAt(0);
         let z = to.charCodeAt(0);
@@ -1144,7 +1142,27 @@ export async function testBrowscap() {
             abc.push(rec);
             if (debug) console.log(rec);
         }
+        return abc;
+    }
+    function buildAbcMatcher(pref:string,postf:string,from='a',to='z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherAbc(pref, postf,from,to);
         fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {} as BrowscapRecord;
+        return fakeBrowscap;
+    }
+    function buildZyxMatcher(pref:string,postf:string,from='a',to='z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherZyx(pref, postf,from,to);
+        fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {} as BrowscapRecord;
+        return fakeBrowscap;
+    }
+    function buildAbcZyxMatcher(pref:string,postf:string,from='a',to='z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherAbc(pref, postf,from,to);
+        let zyx = getMatcherZyx(pref, postf,from,to);
+        fakeBrowscap.build(abc.concat(zyx));
         fakeBrowscap.defaultProperties = {} as BrowscapRecord;
         return fakeBrowscap;
     }
@@ -1195,8 +1213,8 @@ export async function testBrowscap() {
         }
     }
 
-    let scs1 = [{from:'a',to:'b'}, {from:'a',to:'e'}, {from:'a',to:'k'}, {from:'a',to:'p'}, {from:'a',to:'z'}];
-    let scs2 = [{from:'y',to:'z'}, {from:'p',to:'z'}, {from:'k',to:'z'}, {from:'e',to:'z'}, {from:'a',to:'z'}];
+    let scs1 = [{from:'a',to:'b'}, {from:'a',to:'e'}, {from:'a',to:'k'}, {from:'a',to:'p'}, {from:'a',to:'y'}];
+    let scs2 = [{from:'y',to:'z'}, {from:'p',to:'z'}, {from:'k',to:'z'}, {from:'e',to:'z'}, {from:'b',to:'z'}];
 
     console.log("Case ..");
     let fakeBrowscap1 = buildAbcMatcher("",".");
@@ -1220,9 +1238,12 @@ export async function testBrowscap() {
     printStats();
 
     console.log("Case *..*");
-    let fakeBrowscap4 = buildAbcMatcher("*","");
+    let fakeBrowscap4 = buildAbcZyxMatcher("*","");
     for (let sc of scs1) {
-        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc,true));
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true);
+    }
+    for (let sc of scs2) {
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true);
     }
     printStats();
 
