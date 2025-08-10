@@ -12,6 +12,9 @@ import AdmZip from "adm-zip";
 
 let debug = false;
 let testIntegrity = false;
+let saveBodyRecords = false;
+
+let savedBodyRecords: BrowscapRecord[];
 
 function reversedString(input: string) {
     let r = input.split('').reverse().join('');
@@ -372,6 +375,9 @@ export class ParsedBrowscapMatcher {
 
 
     build(bodyRecords: BrowscapRecord[]) {
+        if (saveBodyRecords) {
+            savedBodyRecords = bodyRecords;
+        }
 
         console.time("buildSearchTree");
         console.log("Generate search tree...");
@@ -793,7 +799,7 @@ class BrowscapMatcherGroup {
                 if (modelNext) {
                     if (modelNext.leafResult) {
                         if (nextStartPos == this.endPosition || modelNext.asterixAfterLeaf) {
-                            let value = parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
+                            let value = _parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
                             //if (value.Platform && !value.Platform_Kind) {
                             //    console.log("ERROR Platform:",value.Platform,"Platform_Kind:",value.Platform_Kind);
                             //    process.exit(1);
@@ -929,7 +935,7 @@ function bcmatch(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string) {
 
 // export
 
-var parsedBrowscapMatcher: ParsedBrowscapMatcher;
+var _parsedBrowscapMatcher: ParsedBrowscapMatcher;
 
 /**
  * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
@@ -939,7 +945,7 @@ export function findBrowscapRecords(sample: string) {
     initializeDatabase();
 
     if (debug) console.log("Sample:", sample);
-    let matches = bcmatch(parsedBrowscapMatcher, sample);
+    let matches = bcmatch(_parsedBrowscapMatcher, sample);
 
     if (debug) {
         console.log("Records:");
@@ -953,45 +959,45 @@ export function findBrowscapRecords(sample: string) {
  * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
  */
 export function initializeDataFiles() {
-    if (!parsedBrowscapMatcher) {
-        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
+    if (!_parsedBrowscapMatcher) {
+        _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
 
-    if (!parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+    if (!_parsedBrowscapMatcher) {
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
     }
 
-    parsedBrowscapMatcher.extractJsonIfNotExists();
+    _parsedBrowscapMatcher.extractJsonIfNotExists();
 }
 
 /**
  * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
  */
 export function initializeDatabase() {
-    if (!parsedBrowscapMatcher) {
-        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
+    if (!_parsedBrowscapMatcher) {
+        _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
 
-    if (!parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+    if (!_parsedBrowscapMatcher) {
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
     }
 
-    if (!parsedBrowscapMatcher.built) {
+    if (!_parsedBrowscapMatcher.built) {
         console.time('initializeDatabase');
 
-        parsedBrowscapMatcher.buildFromJson();
+        _parsedBrowscapMatcher.buildFromJson();
         
         console.timeEnd('initializeDatabase');
     }
 
-    return parsedBrowscapMatcher;
+    return _parsedBrowscapMatcher;
 }
 
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
 export function uninitializeDatabase(gc=true,warngc=true) {
-    global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
+    global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = undefined;
 
     if (gc) {
         if (global.gc) {
@@ -1010,6 +1016,7 @@ export function uninitializeDatabase(gc=true,warngc=true) {
 export async function testBrowscap() {
     console.time('tests');
 
+    saveBodyRecords = true;
     initializeDatabase();
 
     console.time('matchers');
@@ -1040,9 +1047,130 @@ export async function testBrowscap() {
         console.log("ALL");
         console.log("--------------------------");
         console.log("Valid:",valid,"/",total,(valid*100/total).toFixed(0)+"%");
+        valid=0;
+        total=0;
+    }
+    function countUnitTestRes(msg: string, expect:number, received:number) {
+        if (expect===received) {
+            ++subvalid;
+            if (debug) console.log("Success:",msg," expected:",expect," OK");
+        } else {
+            if (debug) console.log("Failure:",msg," expected:",expect," received:",received);
+        }
+        ++subtotal;
+    }
+    function bmatchUnitTest(machter:ParsedBrowscapMatcher, sample:string, expect:number) {
+        let matches1 = bcmatch(machter, sample);
+        countUnitTestRes(`Sample:"${sample}"`, expect, matches1.size);
+        if (debug && expect !== matches1.size) {
+            console.log(JSON.stringify(matches1.asObj,null,2));
+        }
     }
 
     debug = false;
+    saveBodyRecords = false;
+
+    console.log("Basic test matcher engine (all should be 100%)");
+    console.log("--------------------------------------------------");
+    function buildAbcMatcher(pref:string,postf:string,from='a',to='z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc:BrowscapRecord[] = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let ed=z; ed>=a; --ed) {
+            let words = [];
+            for (let l=a; l<=ed; ++l) {
+                words.push(String.fromCharCode(l)+"*");
+            }
+            let rec = {PropertyName:pref+words.join(" ")+postf, Parent:"DefaultProperties"} as BrowscapRecord;
+            abc.push(rec);
+            if (debug) console.log(rec);
+        }
+        fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {} as BrowscapRecord;
+        return fakeBrowscap;
+    }
+    console.log("Case ..");
+    let fakeBrowscap1 = buildAbcMatcher("",".");
+    bmatchUnitTest(fakeBrowscap1, "A big cat danced elegantly", 0);
+    bmatchUnitTest(fakeBrowscap1, "A bold cat dances elegantly, fawning gracefully, happily", 0);
+    bmatchUnitTest(fakeBrowscap1, "All beautiful creatures danced energetically, frolicking gracefully, happily", 0);
+    bmatchUnitTest(fakeBrowscap1, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 0);
+    bmatchUnitTest(fakeBrowscap1, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 0);
+    bmatchUnitTest(fakeBrowscap1, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 0);
+    bmatchUnitTest(fakeBrowscap1, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 0);
+    bmatchUnitTest(fakeBrowscap1, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 0);
+    bmatchUnitTest(fakeBrowscap1, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 0);
+    bmatchUnitTest(fakeBrowscap1, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 0);
+    bmatchUnitTest(fakeBrowscap1, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 0);
+    bmatchUnitTest(fakeBrowscap1, "A big cat danced elegantly.", 5);
+    bmatchUnitTest(fakeBrowscap1, "A bold cat dances elegantly, fawning gracefully, happily.", 8);
+    bmatchUnitTest(fakeBrowscap1, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 8);
+    bmatchUnitTest(fakeBrowscap1, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 8);
+    bmatchUnitTest(fakeBrowscap1, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly.", 12);
+    bmatchUnitTest(fakeBrowscap1, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical.", 13);
+    bmatchUnitTest(fakeBrowscap1, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully.", 10);
+    bmatchUnitTest(fakeBrowscap1, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
+    bmatchUnitTest(fakeBrowscap1, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
+    bmatchUnitTest(fakeBrowscap1, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively.", 1);
+    bmatchUnitTest(fakeBrowscap1, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically.", 1);
+    printStats();
+
+    console.log("Case ..*");
+    let fakeBrowscap2 = buildAbcMatcher("","");
+    bmatchUnitTest(fakeBrowscap2, "A big cat danced elegantly", 5);
+    bmatchUnitTest(fakeBrowscap2, "A bold cat dances elegantly, fawning gracefully, happily", 8);
+    bmatchUnitTest(fakeBrowscap2, "All beautiful creatures danced energetically, frolicking gracefully, happily", 8);
+    bmatchUnitTest(fakeBrowscap2, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 8);
+    bmatchUnitTest(fakeBrowscap2, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 22);
+    bmatchUnitTest(fakeBrowscap2, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 23);
+    bmatchUnitTest(fakeBrowscap2, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 20);
+    bmatchUnitTest(fakeBrowscap2, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 2);
+    bmatchUnitTest(fakeBrowscap2, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 2);
+    bmatchUnitTest(fakeBrowscap2, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 2);
+    bmatchUnitTest(fakeBrowscap2, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 1);
+    bmatchUnitTest(fakeBrowscap2, "A big cat danced elegantly.", 5);
+    bmatchUnitTest(fakeBrowscap2, "A bold cat dances elegantly, fawning gracefully, happily.", 8);
+    bmatchUnitTest(fakeBrowscap2, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 8);
+    bmatchUnitTest(fakeBrowscap2, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 8);
+    bmatchUnitTest(fakeBrowscap2, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly.", 22);
+    bmatchUnitTest(fakeBrowscap2, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical.", 23);
+    bmatchUnitTest(fakeBrowscap2, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully.", 20);
+    bmatchUnitTest(fakeBrowscap2, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
+    bmatchUnitTest(fakeBrowscap2, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
+    bmatchUnitTest(fakeBrowscap2, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively.", 2);
+    bmatchUnitTest(fakeBrowscap2, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically.", 1);
+    printStats();
+
+    console.log("Case *..  (generates reverse matcher)");
+    let fakeBrowscap3 = buildAbcMatcher("*",".","a","h");
+    bmatchUnitTest(fakeBrowscap3, "A big cat danced elegantly", 0);
+    bmatchUnitTest(fakeBrowscap3, "A bold cat dances elegantly, fawning gracefully, happily", 0);
+    bmatchUnitTest(fakeBrowscap3, "All beautiful creatures danced energetically, frolicking gracefully, happily", 0);
+    bmatchUnitTest(fakeBrowscap3, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 0);
+    bmatchUnitTest(fakeBrowscap3, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 0);
+    bmatchUnitTest(fakeBrowscap3, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 0);
+    bmatchUnitTest(fakeBrowscap3, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 0);
+    bmatchUnitTest(fakeBrowscap3, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 0);
+    bmatchUnitTest(fakeBrowscap3, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 0);
+    bmatchUnitTest(fakeBrowscap3, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 0);
+    bmatchUnitTest(fakeBrowscap3, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 0);
+    bmatchUnitTest(fakeBrowscap3, "A big cat danced elegantly.", 0);
+    bmatchUnitTest(fakeBrowscap3, "A bold cat dances elegantly, fawning gracefully, happily.", 1);
+    bmatchUnitTest(fakeBrowscap3, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 1);
+    bmatchUnitTest(fakeBrowscap3, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 1);
+    bmatchUnitTest(fakeBrowscap3, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding.", 1);
+    bmatchUnitTest(fakeBrowscap3, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing...", 13);
+    bmatchUnitTest(fakeBrowscap3, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully, happily.", 10);
+    bmatchUnitTest(fakeBrowscap3, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
+    bmatchUnitTest(fakeBrowscap3, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
+    bmatchUnitTest(fakeBrowscap3, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing...", 1);
+    bmatchUnitTest(fakeBrowscap3, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge....", 1);
+    printStats();
+
+    printAllStats();
+
+
 
     console.log("");
     console.log("");
@@ -1107,54 +1235,6 @@ export async function testBrowscap() {
     console.log("");
     printStats();
 
-    console.log("");
-    console.log("");
-    console.log("self-test");
-    console.log("--------------------------");
-
-    // direct patterns from 'valid_patterns.csv' (should match)
-    add("Mozilla/5.0 (*Linux i686 (x86_64)* rv:1.9.2*) Gecko WebThumb/1.0*");
-    add("Mozilla/5.0 (*Linux* rv:1.9.2*) Gecko WebThumb/1.0*");
-    add("Mozilla/5.0 (*Linux i686 (x86_64)* rv:1.9.2*) Gecko WebThumb/*");
-    add("Mozilla/5.0 (*Linux* rv:1.9.2*) Gecko WebThumb/*");
-    add("Mozilla/4.0 (compatible; MSIE 7.0b; *Windows NT 6.0*; SL Commerce Client v1.0*");
-    add("Mozilla/4.0 (compatible; MSIE 7.0b; *Windows NT 6.0*; SL Commerce Client*");
-    add("Mozilla/5.0 (*Windows NT 5.1*) applewebkit* (*khtml*like*gecko*) SecondLife/3.7* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows*) applewebkit* (*khtml*like*gecko*) SecondLife/3.7* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows*) applewebkit* (*khtml*like*gecko*) SecondLife/* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    console.log("");
-    printStats();
-
 
     {
         console.log("");
@@ -1198,6 +1278,22 @@ export async function testBrowscap() {
 
     console.log("");
     printAllStats();
+
+
+    debug = false;
+    
+    console.log("");
+    console.log("");
+    console.log("SELF-TEST (takes a while, should be 100%)");
+    console.log("------------------------------------------------------");
+
+    // direct patterns from browscap.json (should match)
+    for (let bcrec of savedBodyRecords) {
+        add(bcrec.PropertyName);
+    }
+    console.log("");
+    printStats();
+
 
     console.timeEnd('matchers'); //Prints something like that-> tests: 11374.004ms
 
