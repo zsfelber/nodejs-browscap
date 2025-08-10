@@ -1109,6 +1109,24 @@ export async function testBrowscap() {
         fakeBrowscap.defaultProperties = {} as BrowscapRecord;
         return fakeBrowscap;
     }
+    function buildZyxMatcher(pref:string,postf:string,from='a',to='z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc:BrowscapRecord[] = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let bg=a; bg<=z; ++bg) {
+            let words = [];
+            for (let l=bg; l<=z; ++l) {
+                words.push(String.fromCharCode(l)+"*");
+            }
+            let rec = {PropertyName:pref+words.join(" ")+postf, Parent:"DefaultProperties"} as BrowscapRecord;
+            abc.push(rec);
+            if (debug) console.log(rec);
+        }
+        fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {} as BrowscapRecord;
+        return fakeBrowscap;
+    }
 
     let nonrndscramblecnt=0;
     // generate sentences like "A big cat danced elegantly"
@@ -1127,7 +1145,7 @@ export async function testBrowscap() {
         }
         return pref+words.join(" ")+postf;
     }
-    function tastSubcase(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
+    function tastRndSentences(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
         let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
         for (let i=0; i<100; ++i) {
             bmatchUnitTest(machter, genSentence(desc.pref, "", desc.from, desc.to), both?expect:0);
@@ -1135,19 +1153,27 @@ export async function testBrowscap() {
         }
     }
 
-    let subcases1 = [{from:'a',to:'b'}, {from:'a',to:'e'}, {from:'a',to:'k'}, {from:'a',to:'p'}, {from:'a',to:'z'}];
+    let scs1 = [{from:'a',to:'b'}, {from:'a',to:'e'}, {from:'a',to:'k'}, {from:'a',to:'p'}, {from:'a',to:'z'}];
+    let scs2 = [{from:'y',to:'z'}, {from:'p',to:'z'}, {from:'k',to:'z'}, {from:'e',to:'z'}, {from:'a',to:'z'}];
 
     console.log("Case ..");
     let fakeBrowscap1 = buildAbcMatcher("",".");
-    for (let sc of subcases1) {
-        tastSubcase(fakeBrowscap1, Object.assign({pref:"",postf:"."},sc));
+    for (let sc of scs1) {
+        tastRndSentences(fakeBrowscap1, Object.assign({pref:"",postf:"."},sc));
     }
     printStats();
 
     console.log("Case ..*");
     let fakeBrowscap2 = buildAbcMatcher("","");
-    for (let sc of subcases1) {
-        tastSubcase(fakeBrowscap2, Object.assign({pref:"",postf:""},sc), true);
+    for (let sc of scs1) {
+        tastRndSentences(fakeBrowscap2, Object.assign({pref:"",postf:""},sc), true);
+    }
+    printStats();
+
+    console.log("Case *.. (reverse matcher)");
+    let fakeBrowscap3= buildZyxMatcher("*",".");
+    for (let sc of scs2) {
+        tastRndSentences(fakeBrowscap3, Object.assign({pref:"",postf:"."},sc));
     }
     printStats();
 
