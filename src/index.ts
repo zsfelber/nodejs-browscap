@@ -509,10 +509,10 @@ class PositionalBrowscapCharMatchSet {
 
     lastBrowscapMatch: BrowscapMatcherNode;
 
-    constructor(parsedBrowscapMatcher: ParsedBrowscapMatcher, startPosition: number) {
+    constructor(parsedBrowscapMatcher: ParsedBrowscapMatcher, fragmentTreeRoot: BrowscapMatcherNode, startPosition: number) {
         this.parsedBrowscapMatcher = parsedBrowscapMatcher;
         this.position = this.startPosition = startPosition;
-        this.node = parsedBrowscapMatcher.fragmentTreeRoot;
+        this.node = fragmentTreeRoot;
     }
 
     moveAhead(char: string) {
@@ -529,11 +529,13 @@ class PositionalBrowscapCharMatchSet {
 class PositionalBrowscapFragmentMatcher {
     readonly parsedBrowscapMatcher: ParsedBrowscapMatcher;
     readonly sample: string;
+    readonly reverse: boolean;
     readonly positionalBrowscapCharMatchSets: PositionalBrowscapCharMatchSet[] = [];
 
-    constructor(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string) {
+    constructor(parsedBrowscapMatcher: ParsedBrowscapMatcher, sample: string, reverse: boolean) {
         this.parsedBrowscapMatcher = parsedBrowscapMatcher;
         this.sample = sample;
+        this.reverse = reverse;
     }
 
     build() {
@@ -542,7 +544,10 @@ class PositionalBrowscapFragmentMatcher {
         // method result is ~ runtime pattern tree
 
         for (let startPos = 0; startPos < this.sample.length; ++startPos) {
-            let currentSet = new PositionalBrowscapCharMatchSet(this.parsedBrowscapMatcher, startPos);
+            let currentSet = new PositionalBrowscapCharMatchSet(
+                    this.parsedBrowscapMatcher, 
+                    this.reverse?this.parsedBrowscapMatcher.reverseFragmentTreeRoot:this.parsedBrowscapMatcher.fragmentTreeRoot, 
+                    startPos  );
             this.positionalBrowscapCharMatchSets[startPos] = currentSet;
 
             inner:
@@ -872,8 +877,8 @@ class BrowscapMatcherRuntime {
         this.sample = sample.toLowerCase();
         this.rsample = reversedString(sample);
 
-        this.forwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.sample);
-        this.backwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.rsample);
+        this.forwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.sample, false);
+        this.backwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.rsample, true);
 
         this.forwards = new BrowscapMatcherGroup(this.parsedBrowscapMatcher, parsedBrowscapMatcher.patternTreeRootNoAsterix, this.forwardFragments);
         this.backwards = new BrowscapMatcherGroup(this.parsedBrowscapMatcher, parsedBrowscapMatcher.reversePatternTreeRootNoAsterix, this.backwardFragments);
@@ -1165,8 +1170,9 @@ export async function testBrowscap() {
     function tastRndSentences(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
         let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
         for (let i=0; i<100; ++i) {
-            bmatchUnitTest(machter, genSentence(desc.pref, "", desc.from, desc.to), both?expect:0);
-            bmatchUnitTest(machter, genSentence(desc.pref, desc.postf, desc.from, desc.to), expect);
+            let s = genSentence(desc.pref, "", desc.from, desc.to);
+            bmatchUnitTest(machter, s+desc.postf, expect);
+            bmatchUnitTest(machter, s, both?expect:0);
         }
     }
 
