@@ -99,11 +99,13 @@ export declare class ParsedBrowscapMatcher {
     readonly patternTreeRootBothAsterix: BrowscapMatcherNode;
     readonly fragmentTreeRoot: BrowscapMatcherNode;
     readonly reverseFragmentTreeRoot: BrowscapMatcherNode;
+    replaceUnknownStrToUndefined: boolean;
     header: BrowscapHeader;
     headerComments: string[];
     defaultProperties: BrowscapRecord;
     parentProperties: Map<string, BrowscapRecord>;
     built: boolean;
+    constructor(replaceUnknownStrToUndefined: boolean);
     extractJsonIfNotExists(): void;
     buildFromJson(): void;
     build(bodyRecords: BrowscapRecord[]): void;
@@ -128,12 +130,14 @@ export declare class BrowscapMatchResult {
 export declare function findBrowscapRecords(sample: string): BrowscapMatchResult;
 /**
  * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
+ * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-export declare function initializeDataFiles(): void;
+export declare function initializeDataFiles(replaceUnknownStrToUndefined?: boolean): void;
 /**
  * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+ * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-export declare function initializeDatabase(): ParsedBrowscapMatcher;
+export declare function initializeDatabase(replaceUnknownStrToUndefined?: boolean): ParsedBrowscapMatcher;
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */

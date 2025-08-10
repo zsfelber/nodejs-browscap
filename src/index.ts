@@ -316,12 +316,16 @@ export class ParsedBrowscapMatcher {
     readonly fragmentTreeRoot = new BrowscapMatcherNode(null,"");
     readonly reverseFragmentTreeRoot = new BrowscapMatcherNode(null,"");
 
+    replaceUnknownStrToUndefined: boolean;
     header: BrowscapHeader;
     headerComments: string[];
     defaultProperties: BrowscapRecord;
     parentProperties = new Map<string,BrowscapRecord>();
     built = false;
 
+    constructor(replaceUnknownStrToUndefined: boolean) {
+        this.replaceUnknownStrToUndefined = replaceUnknownStrToUndefined;
+    }
     extractJsonIfNotExists() {
         console.log("Extracting json...");
 
@@ -355,6 +359,8 @@ export class ParsedBrowscapMatcher {
         es.splice(0, 3);
         for (let e of es) {
             let bodyRecord: BrowscapRecord = JSON.parse(e[1]);
+            replaceUnknown(bodyRecord);
+
             bodyRecord.PropertyName = e[0];
             if (bodyRecord.Platform) {
                 bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
@@ -948,7 +954,7 @@ var _parsedBrowscapMatcher: ParsedBrowscapMatcher;
  */
 export function findBrowscapRecords(sample: string) {
 
-    initializeDatabase();
+    initializeDatabase(true);
 
     if (debug) console.log("Sample:", sample);
     let matches = bcmatch(_parsedBrowscapMatcher, sample);
@@ -963,14 +969,15 @@ export function findBrowscapRecords(sample: string) {
 
 /**
  * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
+ * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-export function initializeDataFiles() {
+export function initializeDataFiles(replaceUnknownStrToUndefined: boolean=true) {
     if (!_parsedBrowscapMatcher) {
         _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
 
     if (!_parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher(replaceUnknownStrToUndefined);
     }
 
     _parsedBrowscapMatcher.extractJsonIfNotExists();
@@ -978,14 +985,15 @@ export function initializeDataFiles() {
 
 /**
  * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
+ * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-export function initializeDatabase() {
+export function initializeDatabase(replaceUnknownStrToUndefined: boolean=true) {
     if (!_parsedBrowscapMatcher) {
         _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
 
     if (!_parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher(replaceUnknownStrToUndefined);
     }
 
     if (!_parsedBrowscapMatcher.built) {
@@ -1023,7 +1031,7 @@ export async function testBrowscap() {
     console.time('tests');
 
     saveBodyRecords = true;
-    initializeDatabase();
+    initializeDatabase(true);
 
     var testStartMatcher = performance.now();
     console.time('matchers');
@@ -1144,21 +1152,21 @@ export async function testBrowscap() {
         return abc;
     }
     function buildAbcMatcher(pref:string,postf:string,from='a',to='z') {
-        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let fakeBrowscap = new ParsedBrowscapMatcher(false);
         let abc = getMatcherAbc(pref, postf,from,to);
         fakeBrowscap.build(abc);
         fakeBrowscap.defaultProperties = {} as BrowscapRecord;
         return fakeBrowscap;
     }
     function buildZyxMatcher(pref:string,postf:string,from='a',to='z') {
-        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let fakeBrowscap = new ParsedBrowscapMatcher(false);
         let abc = getMatcherZyx(pref, postf,from,to);
         fakeBrowscap.build(abc);
         fakeBrowscap.defaultProperties = {} as BrowscapRecord;
         return fakeBrowscap;
     }
     function buildAbcZyxMatcher(pref:string,postf:string,from='a',to='z') {
-        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let fakeBrowscap = new ParsedBrowscapMatcher(false);
         let abc = getMatcherAbc(pref, postf,from,to);
         let zyx = getMatcherZyx(pref, postf,from,to);
         fakeBrowscap.build(abc.concat(zyx));
@@ -1395,11 +1403,11 @@ export async function testBrowscap() {
 
 
 if (argv.indexOf("--initBrowscap")!=-1) {
-    initializeDataFiles();
+    initializeDataFiles(true);
 }
 
 if (argv.indexOf("--initBrowscapDb")!=-1) {
-    initializeDatabase();
+    initializeDatabase(true);
 }
 
 if (argv.indexOf("--testBrowscap")!=-1) {
