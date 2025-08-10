@@ -53,7 +53,7 @@ if (debug) {
 
 ```
 
-#### Output
+### Output
 
 ```
 
@@ -265,9 +265,9 @@ npm run test
 ```
 
 Now, you are able to review speed data and memory consumption. (Open Task Manager or System Monitor / run 'top' in a linux shell). 
-Latter one is about 1 Gbyte currently. See (#impl)
+Latter one is about 1 Gbyte currently.
 
-#### Output is as follows
+### Output is as follows
 
 ```
 nodejs-browscap@1.0.3 test
