@@ -52,8 +52,11 @@ const adm_zip_1 = __importDefault(require("adm-zip"));
 //import { dirname } from 'path';
 //const __filename = fileURLToPath(import.meta.url);
 //const __dirname = dirname(__filename);
+let printInits = true;
 let debug = false;
 let testIntegrity = false;
+let saveBodyRecords = false;
+let savedBodyRecords;
 function reversedString(input) {
     let r = input.split('').reverse().join('');
     return r;
@@ -138,7 +141,7 @@ class BrowscapMatcherNode {
             result += ")";
             return result;
         };
-        const str = this.text + (this.leafResult ? " -> " + this.leafResult + astxt() : "");
+        const str = "'" + this.text + "'" + (this.leafResult ? " -> '" + this.leafResult + "'" + astxt() : "");
         let childmps;
         childmps = Array.from(this.nextNodes.values()).map(node => {
             return node.treeDump.bind(node);
@@ -224,8 +227,13 @@ class ParsedBrowscapMatcher {
         this.build(bodyRecords);
     }
     build(bodyRecords) {
-        console.time("buildSearchTree");
-        console.log("Generate search tree...");
+        if (saveBodyRecords) {
+            savedBodyRecords = bodyRecords;
+        }
+        if (printInits) {
+            console.time("buildSearchTree");
+            console.log("Generate search tree...");
+        }
         for (let record of bodyRecords) {
             let row = record.PropertyName;
             row = row.toLowerCase();
@@ -284,21 +292,23 @@ class ParsedBrowscapMatcher {
                 addTo(this.patternTreeRootNoAsterix, this.fragmentTreeRoot, row, startstar, endstar);
             }
         }
-        console.log("Total fragment nodes", "  normal:", this.fragmentTreeRoot.cnttxt, "  reverse:", this.reverseFragmentTreeRoot.cnttxt);
-        console.log("Total patterns:", bodyRecords.length, "  ..*? :", this.patternTreeRootNoAsterix.cnttxt, "  *.. :", this.reversePatternTreeRootNoAsterix.cnttxt, "  *..* :", this.patternTreeRootBothAsterix.cnttxt);
-        console.timeEnd("buildSearchTree");
-        //console.log("Fragment tree:\n", this.fragmentTreeRoot.treeDump());
-        //console.log("");
-        //console.log("Fragment tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Reverse fragment tree *.. :\n", this.reverseFragmentTreeRoot.treeDump());
-        //console.log("");
-        //console.log("Pattern tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Reverse pattern tree *.. :\n", this.reversePatternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Pattern tree *..* :\n", this.patternTreeRootBothAsterix.treeDump());
-        //console.log("");
+        if (printInits) {
+            console.log("Total fragment nodes", "  normal:", this.fragmentTreeRoot.cnttxt, "  reverse:", this.reverseFragmentTreeRoot.cnttxt);
+            console.log("Total patterns:", bodyRecords.length, "  ..*? :", this.patternTreeRootNoAsterix.cnttxt, "  *.. :", this.reversePatternTreeRootNoAsterix.cnttxt, "  *..* :", this.patternTreeRootBothAsterix.cnttxt);
+            console.timeEnd("buildSearchTree");
+            //console.log("Fragment tree:\n", this.fragmentTreeRoot.treeDump());
+            //console.log("");
+            //console.log("Fragment tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Reverse fragment tree *.. :\n", this.reverseFragmentTreeRoot.treeDump());
+            //console.log("");
+            //console.log("Pattern tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Reverse pattern tree *.. :\n", this.reversePatternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Pattern tree *..* :\n", this.patternTreeRootBothAsterix.treeDump());
+            //console.log("");
+        }
     }
     mergeProperties(properties) {
         let result;
@@ -325,11 +335,11 @@ class ParsedBrowscapMatcher {
 }
 exports.ParsedBrowscapMatcher = ParsedBrowscapMatcher;
 class PositionalBrowscapCharMatchSet {
-    constructor(parsedBrowscapMatcher, startPosition) {
+    constructor(parsedBrowscapMatcher, fragmentTreeRoot, startPosition) {
         this.matchedFragments = new Map();
         this.parsedBrowscapMatcher = parsedBrowscapMatcher;
         this.position = this.startPosition = startPosition;
-        this.node = parsedBrowscapMatcher.fragmentTreeRoot;
+        this.node = fragmentTreeRoot;
     }
     moveAhead(char) {
         this.node = this.node.nextNodes.get(char);
@@ -342,17 +352,18 @@ class PositionalBrowscapCharMatchSet {
     }
 }
 class PositionalBrowscapFragmentMatcher {
-    constructor(parsedBrowscapMatcher, sample) {
+    constructor(parsedBrowscapMatcher, sample, reverse) {
         this.positionalBrowscapCharMatchSets = [];
         this.parsedBrowscapMatcher = parsedBrowscapMatcher;
         this.sample = sample;
+        this.reverse = reverse;
     }
     build() {
         // 1
         // fragment tree match from each sample position, get all valid
         // method result is ~ runtime pattern tree
         for (let startPos = 0; startPos < this.sample.length; ++startPos) {
-            let currentSet = new PositionalBrowscapCharMatchSet(this.parsedBrowscapMatcher, startPos);
+            let currentSet = new PositionalBrowscapCharMatchSet(this.parsedBrowscapMatcher, this.reverse ? this.parsedBrowscapMatcher.reverseFragmentTreeRoot : this.parsedBrowscapMatcher.fragmentTreeRoot, startPos);
             this.positionalBrowscapCharMatchSets[startPos] = currentSet;
             inner: for (let i = startPos; i < this.sample.length; ++i) {
                 let char = this.sample[i];
@@ -556,7 +567,7 @@ class BrowscapMatcherGroup {
                 if (modelNext) {
                     if (modelNext.leafResult) {
                         if (nextStartPos == this.endPosition || modelNext.asterixAfterLeaf) {
-                            let value = parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
+                            let value = _parsedBrowscapMatcher.mergeProperties(modelNext.leafResultRecord);
                             //if (value.Platform && !value.Platform_Kind) {
                             //    console.log("ERROR Platform:",value.Platform,"Platform_Kind:",value.Platform_Kind);
                             //    process.exit(1);
@@ -602,8 +613,8 @@ class BrowscapMatcherRuntime {
         this.parsedBrowscapMatcher = parsedBrowscapMatcher;
         this.sample = sample.toLowerCase();
         this.rsample = reversedString(sample);
-        this.forwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.sample);
-        this.backwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.rsample);
+        this.forwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.sample, false);
+        this.backwardFragments = new PositionalBrowscapFragmentMatcher(this.parsedBrowscapMatcher, this.rsample, true);
         this.forwards = new BrowscapMatcherGroup(this.parsedBrowscapMatcher, parsedBrowscapMatcher.patternTreeRootNoAsterix, this.forwardFragments);
         this.backwards = new BrowscapMatcherGroup(this.parsedBrowscapMatcher, parsedBrowscapMatcher.reversePatternTreeRootNoAsterix, this.backwardFragments);
         this.bidirectional = new BidirectionalBrowscapMatcherGroup(this.parsedBrowscapMatcher, parsedBrowscapMatcher.patternTreeRootBothAsterix, this.forwardFragments);
@@ -646,7 +657,7 @@ function bcmatch(parsedBrowscapMatcher, sample) {
     return matches;
 }
 // export
-var parsedBrowscapMatcher;
+var _parsedBrowscapMatcher;
 /**
  * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
  */
@@ -654,7 +665,7 @@ function findBrowscapRecords(sample) {
     initializeDatabase();
     if (debug)
         console.log("Sample:", sample);
-    let matches = bcmatch(parsedBrowscapMatcher, sample);
+    let matches = bcmatch(_parsedBrowscapMatcher, sample);
     if (debug) {
         console.log("Records:");
         console.log(JSON.stringify(matches.compressedResults.asObj, null, 2));
@@ -665,36 +676,36 @@ function findBrowscapRecords(sample) {
  * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
  */
 function initializeDataFiles() {
-    if (!parsedBrowscapMatcher) {
-        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
+    if (!_parsedBrowscapMatcher) {
+        _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
-    if (!parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+    if (!_parsedBrowscapMatcher) {
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
     }
-    parsedBrowscapMatcher.extractJsonIfNotExists();
+    _parsedBrowscapMatcher.extractJsonIfNotExists();
 }
 /**
  * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
  */
 function initializeDatabase() {
-    if (!parsedBrowscapMatcher) {
-        parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
+    if (!_parsedBrowscapMatcher) {
+        _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
-    if (!parsedBrowscapMatcher) {
-        global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = new ParsedBrowscapMatcher();
+    if (!_parsedBrowscapMatcher) {
+        global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = new ParsedBrowscapMatcher();
     }
-    if (!parsedBrowscapMatcher.built) {
+    if (!_parsedBrowscapMatcher.built) {
         console.time('initializeDatabase');
-        parsedBrowscapMatcher.buildFromJson();
+        _parsedBrowscapMatcher.buildFromJson();
         console.timeEnd('initializeDatabase');
     }
-    return parsedBrowscapMatcher;
+    return _parsedBrowscapMatcher;
 }
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
 function uninitializeDatabase(gc = true, warngc = true) {
-    global["parsedBrowscapMatcher"] = parsedBrowscapMatcher = undefined;
+    global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = undefined;
     if (gc) {
         if (global.gc) {
             global.gc();
@@ -710,12 +721,15 @@ function uninitializeDatabase(gc = true, warngc = true) {
  */
 async function testBrowscap() {
     console.time('tests');
+    saveBodyRecords = true;
     initializeDatabase();
+    var testStartMatcher = performance.now();
     console.time('matchers');
     let subvalid = 0;
     let subtotal = 0;
     let valid = 0;
     let total = 0;
+    let totaltotal = 0;
     function add(userAgent) {
         let lstresult = findBrowscapRecords(userAgent);
         if (lstresult.size)
@@ -726,21 +740,208 @@ async function testBrowscap() {
         }
     }
     ;
-    function printStats() {
-        console.log("Valid:", subvalid, "/", subtotal, (subvalid * 100 / subtotal).toFixed(0) + "%");
+    function printStats(strict = false) {
+        let pref = "";
+        if (strict) {
+            if (subvalid === subtotal) {
+                pref = "Success. ";
+            }
+            else {
+                pref = "FAILURE. ";
+            }
+        }
+        console.log(pref + "Valid:", subvalid, "/", subtotal, (subvalid * 100 / subtotal).toFixed(0) + "%");
         valid += subvalid;
         total += subtotal;
         subvalid = 0;
         subtotal = 0;
     }
-    function printAllStats() {
+    function printAllStats(strict = false) {
         console.log("");
         console.log("");
         console.log("ALL");
         console.log("--------------------------");
-        console.log("Valid:", valid, "/", total, (valid * 100 / total).toFixed(0) + "%");
+        let pref = "";
+        if (strict) {
+            if (valid === total) {
+                pref = "Success. ";
+            }
+            else {
+                pref = "FAILURE. ";
+            }
+        }
+        console.log(pref + "Valid:", valid, "/", total, (valid * 100 / total).toFixed(0) + "%");
+        totaltotal += total;
+        valid = 0;
+        total = 0;
+    }
+    function countUnitTestRes(msg, expect, received) {
+        if (expect === received) {
+            ++subvalid;
+            if (debug)
+                console.log("Success  ", msg, " expected:", expect, " OK");
+        }
+        else {
+            if (debug)
+                console.log("Failure  ", msg, " expected:", expect, " received:", received);
+        }
+        ++subtotal;
+    }
+    function bmatchUnitTest(machter, sample, expect) {
+        let matches1 = bcmatch(machter, sample);
+        countUnitTestRes(`Sample:"${sample}"`, expect, matches1.size);
+        if (expect !== matches1.size) {
+            console.log("Failure  ", `Sample:"${sample}"`, " expected:", expect, " received:", matches1.size);
+            console.log(JSON.stringify(matches1.asObj, null, 2));
+        }
     }
     debug = false;
+    saveBodyRecords = false;
+    printInits = false;
+    let _englishWords0 = fs.readFileSync(__dirname + '/../data/english-words.txt').toString();
+    let _englishWords = _englishWords0.split("\n");
+    let englishWords = {};
+    for (let w of _englishWords) {
+        w = w.toLowerCase();
+        let byCapital = englishWords[w[0]];
+        if (!byCapital) {
+            englishWords[w[0]] = byCapital = [];
+        }
+        byCapital.push(w);
+    }
+    console.log("");
+    console.log("");
+    console.log("Test matcher engine basics (all should be 100%)");
+    console.log("--------------------------------------------------");
+    function getMatcherAbc(pref, postf, from = 'a', to = 'z') {
+        let abc = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let ed = z; ed >= a; --ed) {
+            let words = [];
+            for (let l = a; l <= ed; ++l) {
+                words.push(String.fromCharCode(l) + "*");
+            }
+            let rec = { PropertyName: pref + words.join(" ") + postf, Parent: "DefaultProperties" };
+            abc.push(rec);
+            if (debug)
+                console.log(rec);
+        }
+        return abc;
+    }
+    function getMatcherZyx(pref, postf, from = 'a', to = 'z') {
+        let abc = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let bg = a; bg <= z; ++bg) {
+            let words = [];
+            for (let l = bg; l <= z; ++l) {
+                words.push(String.fromCharCode(l) + "*");
+            }
+            let rec = { PropertyName: pref + words.join(" ") + postf, Parent: "DefaultProperties" };
+            abc.push(rec);
+            if (debug)
+                console.log(rec);
+        }
+        return abc;
+    }
+    function buildAbcMatcher(pref, postf, from = 'a', to = 'z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherAbc(pref, postf, from, to);
+        fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {};
+        return fakeBrowscap;
+    }
+    function buildZyxMatcher(pref, postf, from = 'a', to = 'z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherZyx(pref, postf, from, to);
+        fakeBrowscap.build(abc);
+        fakeBrowscap.defaultProperties = {};
+        return fakeBrowscap;
+    }
+    function buildAbcZyxMatcher(pref, postf, from = 'a', to = 'z') {
+        let fakeBrowscap = new ParsedBrowscapMatcher();
+        let abc = getMatcherAbc(pref, postf, from, to);
+        let zyx = getMatcherZyx(pref, postf, from, to);
+        fakeBrowscap.build(abc.concat(zyx));
+        fakeBrowscap.defaultProperties = {};
+        return fakeBrowscap;
+    }
+    let nonrndscramblecnt = 0;
+    // generate sentences like "A big cat danced elegantly"
+    function genSentence(pref, postf, from = 'a', to = 'z') {
+        let words = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let l = a; l <= z; ++l) {
+            let letter = String.fromCharCode(l);
+            let byCapital = englishWords[letter];
+            if (!byCapital) {
+                console.log(`Error, missing letter '${letter}'`);
+                process.exit(1);
+            }
+            words.push(byCapital[nonrndscramblecnt % byCapital.length]);
+            ++nonrndscramblecnt;
+        }
+        return pref + words.join(" ") + postf;
+    }
+    function genSentenceUni(pref, postf, from = 'a', to = 'z') {
+        let words = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let l = a; l <= z; ++l) {
+            let letter = String.fromCharCode(l);
+            words.push(letter.padEnd(nonrndscramblecnt % 10, letter));
+            ++nonrndscramblecnt;
+        }
+        return pref + words.join(" ") + postf;
+    }
+    function tastRndSentences(machter, desc, both = false) {
+        let expect = desc.to.charCodeAt(0) - desc.from.charCodeAt(0) + 1;
+        for (let i = 0; i < 100; ++i) {
+            let s = genSentence(desc.pref, "", desc.from, desc.to);
+            bmatchUnitTest(machter, s + desc.postf, expect);
+            bmatchUnitTest(machter, s, both ? expect : 0);
+        }
+    }
+    function tastRndSentencesUni(machter, desc, both = false, cnt = 100) {
+        let expect = desc.to.charCodeAt(0) - desc.from.charCodeAt(0) + 1;
+        for (let i = 0; i < cnt; ++i) {
+            let s = genSentenceUni(desc.pref, "", desc.from, desc.to);
+            bmatchUnitTest(machter, s + desc.postf, expect);
+            bmatchUnitTest(machter, s, both ? expect : 0);
+        }
+    }
+    let scs1 = [{ from: 'a', to: 'b' }, { from: 'a', to: 'e' }, { from: 'a', to: 'k' }, { from: 'a', to: 'p' }, { from: 'a', to: 'y' }];
+    let scs2 = [{ from: 'y', to: 'z' }, { from: 'p', to: 'z' }, { from: 'k', to: 'z' }, { from: 'e', to: 'z' }, { from: 'b', to: 'z' }];
+    console.log("Case ..");
+    let fakeBrowscap1 = buildAbcMatcher("", ".");
+    for (let sc of scs1) {
+        tastRndSentences(fakeBrowscap1, Object.assign({ pref: "", postf: "." }, sc));
+    }
+    printStats();
+    console.log("Case ..*");
+    let fakeBrowscap2 = buildAbcMatcher("", "");
+    for (let sc of scs1) {
+        tastRndSentences(fakeBrowscap2, Object.assign({ pref: "", postf: "." }, sc), true);
+    }
+    printStats();
+    console.log("Case *.. (reverse matcher)");
+    let fakeBrowscap3 = buildZyxMatcher("*", ".");
+    for (let sc of scs2) {
+        tastRndSentences(fakeBrowscap3, Object.assign({ pref: "", postf: "." }, sc));
+    }
+    printStats();
+    console.log("Case *..*");
+    let fakeBrowscap4 = buildAbcZyxMatcher("*", "");
+    for (let sc of scs1) {
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({ pref: ".", postf: "." }, sc), true, 10);
+    }
+    for (let sc of scs2) {
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({ pref: ".", postf: "." }, sc), true, 10);
+    }
+    printStats();
+    printAllStats(true);
     console.log("");
     console.log("");
     console.log("https://www.link-assistant.com/seo-wiki/user-agent/");
@@ -790,52 +991,6 @@ async function testBrowscap() {
     }
     console.log("");
     printStats();
-    console.log("");
-    console.log("");
-    console.log("self-test");
-    console.log("--------------------------");
-    // direct patterns from 'valid_patterns.csv' (should match)
-    add("Mozilla/5.0 (*Linux i686 (x86_64)* rv:1.9.2*) Gecko WebThumb/1.0*");
-    add("Mozilla/5.0 (*Linux* rv:1.9.2*) Gecko WebThumb/1.0*");
-    add("Mozilla/5.0 (*Linux i686 (x86_64)* rv:1.9.2*) Gecko WebThumb/*");
-    add("Mozilla/5.0 (*Linux* rv:1.9.2*) Gecko WebThumb/*");
-    add("Mozilla/4.0 (compatible; MSIE 7.0b; *Windows NT 6.0*; SL Commerce Client v1.0*");
-    add("Mozilla/4.0 (compatible; MSIE 7.0b; *Windows NT 6.0*; SL Commerce Client*");
-    add("Mozilla/5.0 (*Windows NT 5.1*) applewebkit* (*khtml*like*gecko*) SecondLife/3.7* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows*) applewebkit* (*khtml*like*gecko*) SecondLife/3.7* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows*) applewebkit* (*khtml*like*gecko*) SecondLife/* (Second Life *) Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*) applewebkit* (*khtml*like*gecko*) (SecondLife/4.7* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 10.0*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.4*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.3*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.2*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*Win64? x64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*WOW64*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    add("Mozilla/5.0 (*Windows NT 6.1*) applewebkit* (*khtml*like*gecko*) (SecondLife/* Chrome/* Safari/*");
-    console.log("");
-    printStats();
     {
         console.log("");
         console.log("");
@@ -871,7 +1026,23 @@ async function testBrowscap() {
     printStats();
     console.log("");
     printAllStats();
+    debug = false;
+    console.log("");
+    console.log("");
+    console.log("SELF-TEST (should be 100%)");
+    console.log("------------------------------------------------------");
+    // direct patterns from browscap.json (should match)
+    for (let bcrec of savedBodyRecords.slice(0, 50000)) {
+        add(bcrec.PropertyName);
+    }
+    console.log("");
+    printStats(true);
+    totaltotal += total;
+    let testTimeMatcher = 1000 * (performance.now() - testStartMatcher);
     console.timeEnd('matchers'); //Prints something like that-> tests: 11374.004ms
+    let totmillis = (testTimeMatcher / 1000).toFixed(0);
+    let µsperitem = (testTimeMatcher / totaltotal).toFixed(0);
+    console.log("matchers: ", totmillis, "msecs   items cnt:", totaltotal, " ", µsperitem, "µsecs per item");
     console.timeEnd('tests'); //Prints something like that-> tests: 11374.004ms
     if (global.gc) {
         global.gc();

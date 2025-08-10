@@ -1058,8 +1058,8 @@ export async function testBrowscap() {
         console.log(pref+"Valid:",subvalid,"/",subtotal,(subvalid*100/subtotal).toFixed(0)+"%");
         valid += subvalid;
         total += subtotal;
-        subvalid=0;
-        subtotal=0;
+        subvalid = 0;
+        subtotal = 0;
     }
     function printAllStats(strict=false) {
         console.log("");
@@ -1075,9 +1075,9 @@ export async function testBrowscap() {
             }
         }
         console.log(pref+"Valid:",valid,"/",total,(valid*100/total).toFixed(0)+"%");
-        totaltotal+=total;
-        valid=0;
-        total=0;
+        totaltotal += total;
+        valid = 0;
+        total = 0;
     }
     function countUnitTestRes(msg: string, expect:number, received:number) {
         if (expect===received) {
@@ -1207,9 +1207,9 @@ export async function testBrowscap() {
             bmatchUnitTest(machter, s, both?expect:0);
         }
     }
-    function tastRndSentencesUni(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
+    function tastRndSentencesUni(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false, cnt=100) {
         let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
-        for (let i=0; i<100; ++i) {
+        for (let i=0; i<cnt; ++i) {
             let s = genSentenceUni(desc.pref, "", desc.from, desc.to);
             bmatchUnitTest(machter, s+desc.postf, expect);
             bmatchUnitTest(machter, s, both?expect:0);
@@ -1243,10 +1243,10 @@ export async function testBrowscap() {
     console.log("Case *..*");
     let fakeBrowscap4 = buildAbcZyxMatcher("*","");
     for (let sc of scs1) {
-        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true);
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true,10);
     }
     for (let sc of scs2) {
-        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true);
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc),true,10);
     }
     printStats();
 
@@ -1375,12 +1375,14 @@ export async function testBrowscap() {
     }
     console.log("");
     printStats(true);
+    totaltotal += total;
 
-    let testTimeMatcher = performance.now() - testStartMatcher;
+    let testTimeMatcher = 1000 * (performance.now() - testStartMatcher);
     console.timeEnd('matchers'); //Prints something like that-> tests: 11374.004ms
 
-    let µsperitem = (1000 * testTimeMatcher / totaltotal).toFixed(0);
-    console.log("matchers: ",testTimeMatcher,"msecs   items cnt:",totaltotal," ",µsperitem,"µsecs per item");
+    let totmillis = (testTimeMatcher / 1000).toFixed(0);
+    let µsperitem = (testTimeMatcher / totaltotal).toFixed(0);
+    console.log("matchers: ",totmillis,"msecs   items cnt:",totaltotal," ",µsperitem,"µsecs per item");
 
     console.timeEnd('tests'); //Prints something like that-> tests: 11374.004ms
 
