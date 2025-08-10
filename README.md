@@ -62,9 +62,7 @@ Records:
   "Mozilla/5.0 (*Linux*x86_64*)*applewebkit*(*khtml*like*gecko*)*Chrome/*": {
     "Browser_Type": "Browser",
     "Browser_Maker": "Google Inc",
-    "Browser_Modus": "unknown",
     "Platform": "Linux",
-    "Platform_Version": "unknown",
     "Platform_Description": "Linux",
     "Platform_Maker": "Linux Foundation",
     "Alpha": false,
@@ -91,15 +89,13 @@ Records:
     "CssVersion": 3,
     "AolVersion": 0,
     "Device_Name": "Linux Desktop",
-    "Device_Maker": "unknown",
     "Device_Type": "Desktop",
     "Device_Pointing_Method": "mouse",
     "Device_Code_Name": "Linux Desktop",
-    "Device_Brand_Name": "unknown",
     "RenderingEngine_Name": "Blink",
-    "RenderingEngine_Version": "unknown",
     "RenderingEngine_Description": "a WebKit Fork by Google",
     "RenderingEngine_Maker": "Google Inc",
+    "Platform_Kind": "Linux",
     "UserAgents": [
       {
         "Parent": "Chrome Generic",
@@ -160,9 +156,7 @@ Records:
   "Mozilla/5.0 (*Linux*x86_64*) applewebkit*(*khtml*like*gecko*)*Safari*": {
     "Browser_Type": "Browser",
     "Browser_Maker": "Apple Inc",
-    "Browser_Modus": "unknown",
     "Platform": "Linux",
-    "Platform_Version": "unknown",
     "Platform_Description": "Linux",
     "Platform_Maker": "Linux Foundation",
     "Alpha": false,
@@ -189,15 +183,13 @@ Records:
     "CssVersion": 3,
     "AolVersion": 0,
     "Device_Name": "Linux Desktop",
-    "Device_Maker": "unknown",
     "Device_Type": "Desktop",
     "Device_Pointing_Method": "mouse",
     "Device_Code_Name": "Linux Desktop",
-    "Device_Brand_Name": "unknown",
     "RenderingEngine_Name": "WebKit",
-    "RenderingEngine_Version": "unknown",
     "RenderingEngine_Description": "For Google Chrome, iOS (including both mobile Safari, WebViews within third-party apps, and web clips), Safari, Arora, Midori, OmniWeb, Shiira, iCab since version 4, Web, SRWare Iron, Rekonq, and in Maxthon 3.",
     "RenderingEngine_Maker": "Apple Inc",
+    "Platform_Kind": "Linux",
     "UserAgents": [
       {
         "Parent": "Safari Generic",
@@ -216,9 +208,7 @@ Records:
   },
   "$common": {
     "Browser_Type": "Browser",
-    "Browser_Modus": "unknown",
     "Platform": "Linux",
-    "Platform_Version": "unknown",
     "Platform_Description": "Linux",
     "Platform_Maker": "Linux Foundation",
     "Alpha": false,
@@ -244,12 +234,10 @@ Records:
     "CssVersion": 3,
     "AolVersion": 0,
     "Device_Name": "Linux Desktop",
-    "Device_Maker": "unknown",
     "Device_Type": "Desktop",
     "Device_Pointing_Method": "mouse",
     "Device_Code_Name": "Linux Desktop",
-    "Device_Brand_Name": "unknown",
-    "RenderingEngine_Version": "unknown"
+    "Platform_Kind": "Linux"
   }
 }
 
