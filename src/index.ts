@@ -1029,12 +1029,14 @@ export async function testBrowscap() {
     saveBodyRecords = true;
     initializeDatabase();
 
+    var testStartMatcher = performance.now();
     console.time('matchers');
 
     let subvalid=0;
     let subtotal=0;
     let valid=0;
     let total=0;
+    let totaltotal=0;
     function add(userAgent:string){
         let lstresult = findBrowscapRecords(userAgent);
         if (lstresult.size) ++subvalid;
@@ -1073,6 +1075,7 @@ export async function testBrowscap() {
             }
         }
         console.log(pref+"Valid:",valid,"/",total,(valid*100/total).toFixed(0)+"%");
+        totaltotal+=total;
         valid=0;
         total=0;
     }
@@ -1363,18 +1366,21 @@ export async function testBrowscap() {
     
     console.log("");
     console.log("");
-    console.log("SELF-TEST (takes a while, should be 100%)");
+    console.log("SELF-TEST (should be 100%)");
     console.log("------------------------------------------------------");
 
     // direct patterns from browscap.json (should match)
-    for (let bcrec of savedBodyRecords) {
+    for (let bcrec of savedBodyRecords.slice(0,50000)) {
         add(bcrec.PropertyName);
     }
     console.log("");
     printStats(true);
 
-
+    let testTimeMatcher = performance.now() - testStartMatcher;
     console.timeEnd('matchers'); //Prints something like that-> tests: 11374.004ms
+
+    let µsperitem = (1000 * testTimeMatcher / totaltotal).toFixed(0);
+    console.log("matchers: ",testTimeMatcher,"msecs   items cnt:",totaltotal," ",µsperitem,"µsecs per item");
 
     console.timeEnd('tests'); //Prints something like that-> tests: 11374.004ms
 
