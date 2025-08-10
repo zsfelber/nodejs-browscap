@@ -1167,10 +1167,29 @@ export async function testBrowscap() {
         }
         return pref+words.join(" ")+postf;
     }
+    function genSentenceUni(pref:string,postf:string,from='a',to='z') {
+        let words:string[] = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let l=a; l<=z; ++l) {
+            let letter = String.fromCharCode(l);
+            words.push(letter.padEnd(nonrndscramblecnt%10, letter));
+            ++nonrndscramblecnt;
+        }
+        return pref+words.join(" ")+postf;
+    }
     function tastRndSentences(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
         let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
         for (let i=0; i<100; ++i) {
             let s = genSentence(desc.pref, "", desc.from, desc.to);
+            bmatchUnitTest(machter, s+desc.postf, expect);
+            bmatchUnitTest(machter, s, both?expect:0);
+        }
+    }
+    function tastRndSentencesUni(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
+        let expect = desc.to.charCodeAt(0)-desc.from.charCodeAt(0)+1;
+        for (let i=0; i<100; ++i) {
+            let s = genSentenceUni(desc.pref, "", desc.from, desc.to);
             bmatchUnitTest(machter, s+desc.postf, expect);
             bmatchUnitTest(machter, s, both?expect:0);
         }
@@ -1189,7 +1208,7 @@ export async function testBrowscap() {
     console.log("Case ..*");
     let fakeBrowscap2 = buildAbcMatcher("","");
     for (let sc of scs1) {
-        tastRndSentences(fakeBrowscap2, Object.assign({pref:"",postf:""},sc), true);
+        tastRndSentences(fakeBrowscap2, Object.assign({pref:"",postf:"."},sc), true);
     }
     printStats();
 
@@ -1197,6 +1216,13 @@ export async function testBrowscap() {
     let fakeBrowscap3= buildZyxMatcher("*",".");
     for (let sc of scs2) {
         tastRndSentences(fakeBrowscap3, Object.assign({pref:"",postf:"."},sc));
+    }
+    printStats();
+
+    console.log("Case *..*");
+    let fakeBrowscap4 = buildAbcMatcher("*","");
+    for (let sc of scs1) {
+        tastRndSentencesUni(fakeBrowscap4, Object.assign({pref:".",postf:"."},sc,true));
     }
     printStats();
 
