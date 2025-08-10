@@ -10,6 +10,7 @@ import AdmZip from "adm-zip";
 //const __filename = fileURLToPath(import.meta.url);
 //const __dirname = dirname(__filename);
 
+let printInits = true;
 let debug = false;
 let testIntegrity = false;
 let saveBodyRecords = false;
@@ -379,8 +380,10 @@ export class ParsedBrowscapMatcher {
             savedBodyRecords = bodyRecords;
         }
 
-        console.time("buildSearchTree");
-        console.log("Generate search tree...");
+        if (printInits) {
+            console.time("buildSearchTree");
+            console.log("Generate search tree...");
+        }
 
         for (let record of bodyRecords) {
 
@@ -450,23 +453,25 @@ export class ParsedBrowscapMatcher {
             }
         }
 
-        console.log("Total fragment nodes", "  normal:", this.fragmentTreeRoot.cnttxt, "  reverse:", this.reverseFragmentTreeRoot.cnttxt);
-        console.log("Total patterns:", bodyRecords.length, "  ..*? :", this.patternTreeRootNoAsterix.cnttxt, "  *.. :", this.reversePatternTreeRootNoAsterix.cnttxt, "  *..* :", this.patternTreeRootBothAsterix.cnttxt);
-        console.timeEnd("buildSearchTree");
+        if (printInits) {
+            console.log("Total fragment nodes", "  normal:", this.fragmentTreeRoot.cnttxt, "  reverse:", this.reverseFragmentTreeRoot.cnttxt);
+            console.log("Total patterns:", bodyRecords.length, "  ..*? :", this.patternTreeRootNoAsterix.cnttxt, "  *.. :", this.reversePatternTreeRootNoAsterix.cnttxt, "  *..* :", this.patternTreeRootBothAsterix.cnttxt);
+            console.timeEnd("buildSearchTree");
 
-        //console.log("Fragment tree:\n", this.fragmentTreeRoot.treeDump());
-        //console.log("");
-        //console.log("Fragment tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Reverse fragment tree *.. :\n", this.reverseFragmentTreeRoot.treeDump());
-        //console.log("");
+            //console.log("Fragment tree:\n", this.fragmentTreeRoot.treeDump());
+            //console.log("");
+            //console.log("Fragment tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Reverse fragment tree *.. :\n", this.reverseFragmentTreeRoot.treeDump());
+            //console.log("");
 
-        //console.log("Pattern tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Reverse pattern tree *.. :\n", this.reversePatternTreeRootNoAsterix.treeDump());
-        //console.log("");
-        //console.log("Pattern tree *..* :\n", this.patternTreeRootBothAsterix.treeDump());
-        //console.log("");
+            //console.log("Pattern tree ..*? :\n", this.patternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Reverse pattern tree *.. :\n", this.reversePatternTreeRootNoAsterix.treeDump());
+            //console.log("");
+            //console.log("Pattern tree *..* :\n", this.patternTreeRootBothAsterix.treeDump());
+            //console.log("");
+        }
     }
 
     mergeProperties(properties: BrowscapRecord) {
@@ -1053,22 +1058,36 @@ export async function testBrowscap() {
     function countUnitTestRes(msg: string, expect:number, received:number) {
         if (expect===received) {
             ++subvalid;
-            if (debug) console.log("Success:",msg," expected:",expect," OK");
+            if (debug) console.log("Success  ",msg," expected:",expect," OK");
         } else {
-            if (debug) console.log("Failure:",msg," expected:",expect," received:",received);
+            if (debug) console.log("Failure  ",msg," expected:",expect," received:",received);
         }
         ++subtotal;
     }
     function bmatchUnitTest(machter:ParsedBrowscapMatcher, sample:string, expect:number) {
         let matches1 = bcmatch(machter, sample);
         countUnitTestRes(`Sample:"${sample}"`, expect, matches1.size);
-        if (debug && expect !== matches1.size) {
+        if (expect !== matches1.size) {
+            console.log("Failure  ",`Sample:"${sample}"`," expected:",expect," received:",matches1.size);
             console.log(JSON.stringify(matches1.asObj,null,2));
         }
     }
 
     debug = false;
     saveBodyRecords = false;
+    printInits = false;
+
+    let _englishWords0 = fs.readFileSync(__dirname+'/../data/english-words.txt').toString();
+    let _englishWords = _englishWords0.split("\n");
+    let englishWords:Record<string,string[]>={};
+    for (let w of _englishWords) {
+        w = w.toLowerCase();
+        let byCapital = englishWords[w[0]];
+        if (!byCapital) {
+            englishWords[w[0]] = byCapital = [];
+        }
+        byCapital.push(w);
+    }
 
     console.log("Basic test matcher engine (all should be 100%)");
     console.log("--------------------------------------------------");
@@ -1090,82 +1109,46 @@ export async function testBrowscap() {
         fakeBrowscap.defaultProperties = {} as BrowscapRecord;
         return fakeBrowscap;
     }
+
+    let nonrndscramblecnt=0;
+    // generate sentences like "A big cat danced elegantly"
+    function genSentence(pref:string,postf:string,from='a',to='z') {
+        let words:string[] = [];
+        let a = from.charCodeAt(0);
+        let z = to.charCodeAt(0);
+        for (let l=a; l<=z; ++l) {
+            let letter = String.fromCharCode(l);
+            let byCapital = englishWords[letter];
+            if (!byCapital) {
+                console.log(`Error, missing letter '${letter}'`);
+                process.exit(1);
+            }
+            words.push(byCapital[nonrndscramblecnt%byCapital.length]);
+        }
+        return pref+words.join(" ")+postf;
+    }
+    function tastSubcase(machter:ParsedBrowscapMatcher, desc:{from:string,to:string,pref:string,postf:string}, both=false) {
+        let expect = desc.to.charCodeAt(1)-desc.from.charCodeAt(1)+1;
+        for (let i=0; i<100; ++i) {
+            bmatchUnitTest(machter, genSentence(desc.pref, desc.postf, desc.from, desc.to), both?expect:0);
+            bmatchUnitTest(machter, genSentence(desc.pref, desc.postf, desc.from, desc.to), expect);
+        }
+    }
+
+    let subcases1 = [{from:'a',to:'b'}, {from:'a',to:'e'}, {from:'a',to:'k'}, {from:'a',to:'p'}, {from:'a',to:'z'}];
+
     console.log("Case ..");
     let fakeBrowscap1 = buildAbcMatcher("",".");
-    bmatchUnitTest(fakeBrowscap1, "A big cat danced elegantly", 0);
-    bmatchUnitTest(fakeBrowscap1, "A bold cat dances elegantly, fawning gracefully, happily", 0);
-    bmatchUnitTest(fakeBrowscap1, "All beautiful creatures danced energetically, frolicking gracefully, happily", 0);
-    bmatchUnitTest(fakeBrowscap1, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 0);
-    bmatchUnitTest(fakeBrowscap1, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 0);
-    bmatchUnitTest(fakeBrowscap1, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 0);
-    bmatchUnitTest(fakeBrowscap1, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 0);
-    bmatchUnitTest(fakeBrowscap1, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 0);
-    bmatchUnitTest(fakeBrowscap1, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 0);
-    bmatchUnitTest(fakeBrowscap1, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 0);
-    bmatchUnitTest(fakeBrowscap1, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 0);
-    bmatchUnitTest(fakeBrowscap1, "A big cat danced elegantly.", 5);
-    bmatchUnitTest(fakeBrowscap1, "A bold cat dances elegantly, fawning gracefully, happily.", 8);
-    bmatchUnitTest(fakeBrowscap1, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 8);
-    bmatchUnitTest(fakeBrowscap1, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 8);
-    bmatchUnitTest(fakeBrowscap1, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly.", 12);
-    bmatchUnitTest(fakeBrowscap1, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical.", 13);
-    bmatchUnitTest(fakeBrowscap1, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully.", 10);
-    bmatchUnitTest(fakeBrowscap1, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
-    bmatchUnitTest(fakeBrowscap1, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
-    bmatchUnitTest(fakeBrowscap1, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively.", 1);
-    bmatchUnitTest(fakeBrowscap1, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically.", 1);
+    for (let sc of subcases1) {
+        tastSubcase(fakeBrowscap1, Object.assign({pref:"",postf:"."},sc));
+    }
     printStats();
 
     console.log("Case ..*");
     let fakeBrowscap2 = buildAbcMatcher("","");
-    bmatchUnitTest(fakeBrowscap2, "A big cat danced elegantly", 5);
-    bmatchUnitTest(fakeBrowscap2, "A bold cat dances elegantly, fawning gracefully, happily", 8);
-    bmatchUnitTest(fakeBrowscap2, "All beautiful creatures danced energetically, frolicking gracefully, happily", 8);
-    bmatchUnitTest(fakeBrowscap2, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 8);
-    bmatchUnitTest(fakeBrowscap2, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 22);
-    bmatchUnitTest(fakeBrowscap2, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 23);
-    bmatchUnitTest(fakeBrowscap2, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 20);
-    bmatchUnitTest(fakeBrowscap2, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 2);
-    bmatchUnitTest(fakeBrowscap2, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 2);
-    bmatchUnitTest(fakeBrowscap2, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 2);
-    bmatchUnitTest(fakeBrowscap2, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 1);
-    bmatchUnitTest(fakeBrowscap2, "A big cat danced elegantly.", 5);
-    bmatchUnitTest(fakeBrowscap2, "A bold cat dances elegantly, fawning gracefully, happily.", 8);
-    bmatchUnitTest(fakeBrowscap2, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 8);
-    bmatchUnitTest(fakeBrowscap2, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 8);
-    bmatchUnitTest(fakeBrowscap2, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly.", 22);
-    bmatchUnitTest(fakeBrowscap2, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical.", 23);
-    bmatchUnitTest(fakeBrowscap2, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully.", 20);
-    bmatchUnitTest(fakeBrowscap2, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
-    bmatchUnitTest(fakeBrowscap2, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
-    bmatchUnitTest(fakeBrowscap2, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively.", 2);
-    bmatchUnitTest(fakeBrowscap2, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically.", 1);
-    printStats();
-
-    console.log("Case *..  (generates reverse matcher)");
-    let fakeBrowscap3 = buildAbcMatcher("*",".","a","h");
-    bmatchUnitTest(fakeBrowscap3, "A big cat danced elegantly", 0);
-    bmatchUnitTest(fakeBrowscap3, "A bold cat dances elegantly, fawning gracefully, happily", 0);
-    bmatchUnitTest(fakeBrowscap3, "All beautiful creatures danced energetically, frolicking gracefully, happily", 0);
-    bmatchUnitTest(fakeBrowscap3, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily", 0);
-    bmatchUnitTest(fakeBrowscap3, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding icy, joyful kingdoms, lovingly", 0);
-    bmatchUnitTest(fakeBrowscap3, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing idyllically, joyfully, keeping love magical", 0);
-    bmatchUnitTest(fakeBrowscap3, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully", 0);
-    bmatchUnitTest(fakeBrowscap3, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly", 0);
-    bmatchUnitTest(fakeBrowscap3, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy", 0);
-    bmatchUnitTest(fakeBrowscap3, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing legends march onwards, protectively", 0);
-    bmatchUnitTest(fakeBrowscap3, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge, luminously, mystically", 0);
-    bmatchUnitTest(fakeBrowscap3, "A big cat danced elegantly.", 0);
-    bmatchUnitTest(fakeBrowscap3, "A bold cat dances elegantly, fawning gracefully, happily.", 1);
-    bmatchUnitTest(fakeBrowscap3, "All beautiful creatures danced energetically, frolicking gracefully, happily.", 1);
-    bmatchUnitTest(fakeBrowscap3, "An adventurous bear cautiously devoured eagerly, fearlessly, growing happily.", 1);
-    bmatchUnitTest(fakeBrowscap3, "Apple blossoms cascaded delicately, enchanting flowers gently, heralding.", 1);
-    bmatchUnitTest(fakeBrowscap3, "Astonishing butterflies careened delicately, effortlessly fluttering gracefully, harmonizing...", 13);
-    bmatchUnitTest(fakeBrowscap3, "All brave champions dared efficiently, fearlessly guarding homes impeccably, joyfully, happily.", 10);
-    bmatchUnitTest(fakeBrowscap3, "Amazingly brave explorers discovered fascinating gateways, harboring incredible journeys, kindly.", 2);
-    bmatchUnitTest(fakeBrowscap3, "A brave knight marched onward, proudly raising shield, triumphing under victorious wings, xenelasy.", 2);
-    bmatchUnitTest(fakeBrowscap3, "All courageous warriors embarked fearlessly, graciously honoring incredible journeys, knowing...", 1);
-    bmatchUnitTest(fakeBrowscap3, "Ancient Druids energetically forged glorious, harmonious instruments, juxtaposing knowledge....", 1);
+    for (let sc of subcases1) {
+        tastSubcase(fakeBrowscap2, Object.assign({pref:"",postf:""},sc), true);
+    }
     printStats();
 
     printAllStats();
