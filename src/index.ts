@@ -119,7 +119,7 @@ class BrowscapMatcherNode {
             result += ")"
             return result;
         };
-        const str = this.text + (this.leafResult?" -> "+this.leafResult+astxt():"");
+        const str = "'"+this.text+"'"+ (this.leafResult?" -> '"+this.leafResult+"'"+astxt():"");
  
         let childmps: ((tab:string)=>string)[];
         childmps = Array.from(this.nextNodes.values()).map(node=>{
@@ -1142,6 +1142,7 @@ export async function testBrowscap() {
                 process.exit(1);
             }
             words.push(byCapital[nonrndscramblecnt%byCapital.length]);
+            ++nonrndscramblecnt;
         }
         return pref+words.join(" ")+postf;
     }
