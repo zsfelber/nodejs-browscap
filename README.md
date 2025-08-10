@@ -364,7 +364,7 @@ Runs tests.
 
 | Constant | Type |
 | ---------- | ---------- |
-| `PlatformKinds` | `{ [index: string]: PlatformKind; }` |
+| `PlatformKinds` | `Record<PlatformCode, PlatformKind>` |
 
 
 ## :factory: ParsedBrowscapMatcher

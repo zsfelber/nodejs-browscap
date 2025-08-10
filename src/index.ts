@@ -205,7 +205,7 @@ export type PlatformKind =
     "OtherPC"
 ;
 
-let PlatformKinds: Record<PlatformCode, PlatformKind> = {
+export const PlatformKinds: Record<PlatformCode, PlatformKind> = {
     "AIX":"Unix",    "Amiga OS":"OtherPC",    "Android for GoogleTV":"Android",    "Android":"Android",    "Asha":"Android",
     "ATV OS X":"MacOS",    "Bada":"OtherLinuxMobile",    "BeOS":"OtherPC",    "Brew MP":"Device",    "Brew":"Device",    "BSD":"Unix",
     "CellOS":"Device",    "CentOS":"Linux",    "Chromecast OS":"Device",    "ChromeOS":"OtherLinuxMobile",    "CygWin":"EmulationVirtual",
@@ -663,10 +663,6 @@ function compressObjectIntoTree<T>(vs0: T[], uniqueProps:object, results: Map<st
         results.set(id, first);
 
     } while (vs0.length);
-}
-
-export interface MapLike<T> {
-    [index:string]: T;
 }
 
 export class BrowscapMatchResult {

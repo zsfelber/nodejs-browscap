@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = void 0;
+exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = exports.PlatformKinds = void 0;
 exports.findBrowscapRecords = findBrowscapRecords;
 exports.initializeDataFiles = initializeDataFiles;
 exports.initializeDatabase = initializeDatabase;
@@ -153,7 +153,7 @@ class BrowscapMatcherNode {
         return `${this.totalNodesWithResult}/${this.totalNodes}`;
     }
 }
-let PlatformKinds = {
+exports.PlatformKinds = {
     "AIX": "Unix", "Amiga OS": "OtherPC", "Android for GoogleTV": "Android", "Android": "Android", "Asha": "Android",
     "ATV OS X": "MacOS", "Bada": "OtherLinuxMobile", "BeOS": "OtherPC", "Brew MP": "Device", "Brew": "Device", "BSD": "Unix",
     "CellOS": "Device", "CentOS": "Linux", "Chromecast OS": "Device", "ChromeOS": "OtherLinuxMobile", "CygWin": "EmulationVirtual",
@@ -212,7 +212,7 @@ class ParsedBrowscapMatcher {
             let bodyRecord = JSON.parse(e[1]);
             bodyRecord.PropertyName = e[0];
             if (bodyRecord.Platform) {
-                bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
+                bodyRecord.Platform_Kind = exports.PlatformKinds[bodyRecord.Platform];
                 if (!bodyRecord.Platform_Kind) {
                     console.log("ERROR Platform:", bodyRecord.Platform, "Platform_Kind:", bodyRecord.Platform_Kind);
                     process.exit(1);
