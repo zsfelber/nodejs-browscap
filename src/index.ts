@@ -14,6 +14,7 @@ let printInits = true;
 let debug = false;
 let testIntegrity = false;
 let saveBodyRecords = false;
+const CRITICAL_COMPLEXITY_MS_LIMIT = 1000;
 
 let savedBodyRecords: BrowscapRecord[];
 
@@ -824,27 +825,39 @@ class BrowscapMatcherGroup {
 
     match() {
 
+        let start = Date.now();
         // 2
         // walk through runtime and model pattern trees, their intersection is the result
 
-        this.traversePatternAndSampleTree(this.patternTreeRoot, 0, this.starbefore);
+        try {
+            this.traversePatternAndSampleTree(start, this.patternTreeRoot, 0, this.starbefore);
+        } catch (e) {
+            console.log(e);
+            if (e === "CRITICAL_COMPLEXITY_MS_LIMIT reached") {
+                console.log("CRITICAL_COMPLEXITY_MS_LIMIT:", CRITICAL_COMPLEXITY_MS_LIMIT);
+            } else {
+                throw e;
+            }
+        }
 
     }
 
-    traversePatternAndSampleTree(modelFragmNode: BrowscapMatcherNode, startPosition: number, starBefore=false) {
+    traversePatternAndSampleTree(start: number, modelFragmNode: BrowscapMatcherNode, startPosition: number, starBefore=false) {
+        if (Date.now() - start > CRITICAL_COMPLEXITY_MS_LIMIT) {
+            throw "CRITICAL_COMPLEXITY_MS_LIMIT reached";
+        }
         let found = false;
         if (starBefore) {
             for (let pos = startPosition; pos < this.endPosition; ++pos) {
-                found = this.traversePatternAndSampleTreeFromPos(modelFragmNode, pos) || found;
+                found = this.traversePatternAndSampleTreeFromPos(start, modelFragmNode, pos) || found;
             }
         } else {
-            found = this.traversePatternAndSampleTreeFromPos(modelFragmNode, startPosition);
+            found = this.traversePatternAndSampleTreeFromPos(start, modelFragmNode, startPosition);
         }
         return found;
     }
 
-    traversePatternAndSampleTreeFromPos(modelFragmNode: BrowscapMatcherNode, startPosition: number) {
-
+    traversePatternAndSampleTreeFromPos(start: number, modelFragmNode: BrowscapMatcherNode, startPosition: number) {
 
         let found = false;
         let fs = 0;
@@ -868,7 +881,7 @@ class BrowscapMatcherGroup {
                             found = true;
                         }
                     }
-                    found = this.traversePatternAndSampleTree(modelNext, nextStartPos, true) || found;
+                    found = this.traversePatternAndSampleTree(start, modelNext, nextStartPos, true) || found;
                 } else {
                     //debug
                     //let col1 = `'${this.positionalFragments.sample.slice(0, nextStartPos)}'`;
@@ -1428,7 +1441,7 @@ export async function testBrowscap() {
 
     console.log("");
     console.log("");
-    console.log("Bad items");
+    console.log("Too long items");
     console.log("--------------------------------------");
 
     add("Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30");
