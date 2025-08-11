@@ -2,3 +2,8 @@ node_modules
 package-lock.json
 data/browscap.json
 data/test/whatismybrowser-user-agents.csv
+data/test/user-agents_android_500.json
+data/test/user-agents_chrome_500.json
+data/test/user-agents_chromium_500.json
+data/test/user-agents_edge_500.json
+data/test/user-agents_safari_500.json

@@ -56,6 +56,29 @@ function extractSingleFileFromZip(zipPath: string, outFilePath: string, entryNam
     return false;
 }
 
+function extractAllFilesFromZip(zipPath: string, outPath: string, update:boolean=true) {
+    zipPath = path.resolve(zipPath);
+    outPath = path.resolve(outPath);
+
+    let zip = new AdmZip(zipPath);
+    let zipEntries = zip.getEntries();
+
+    for (let zipEntry of zipEntries.values()) {
+        let outFilePath = path.join(outPath, zipEntry.entryName);
+        let curfilesz = 0;
+        if (update && fs.existsSync(outFilePath)) {
+            curfilesz = fs.statSync(outFilePath).size;
+        }
+        if (!update || zipEntry.header.size !== curfilesz) {
+            //console.log("compressedSize !== curfilesz ",zipEntry.header.compressedSize,"!==",curfilesz);
+            console.log("Extracting ",zipEntry.entryName,"...");
+            fs.writeFileSync(outFilePath, zipEntry.getData());
+        } else {
+            console.log("Output file (of proper size) is present already:", outFilePath);
+        }
+    }
+}
+
 class BrowscapMatcherNode {
 
     readonly root:BrowscapMatcherNode;
@@ -379,7 +402,13 @@ export class ParsedBrowscapMatcher {
             let bodyRecord: BrowscapRecord = JSON.parse(e[1]);
             replaceUnknown(bodyRecord);
 
+            if (bodyRecord.PropertyName==="*") {
+                // omit default browser rule with no properties
+                continue;
+            }
+
             bodyRecord.PropertyName = e[0];
+
             if (bodyRecord.Platform) {
                 bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
                 if (!bodyRecord.Platform_Kind) {
@@ -391,6 +420,7 @@ export class ParsedBrowscapMatcher {
             if (bodyRecord.Parent==="DefaultProperties") {
                 this.parentProperties.set(bodyRecord.PropertyName, bodyRecord);
             }
+
         }
 
         console.timeEnd("loadJson");
@@ -1368,9 +1398,47 @@ export async function testBrowscap() {
         printStats();
     }
 
-    
+    {
+        extractAllFilesFromZip(__dirname+"/../data/test/user-agents-net-test.zip", __dirname+"/../data/test");
+
+        function uanet(curJson: string, code:string) {
+
+            let uaarr:string[] = loadJSONSync(__dirname+"/../data/test/"+curJson);
+
+            console.log("");
+            console.log("");
+            console.log(`user-agents-net-${code}`);
+            console.log("--------------------------------------");
+
+            for (let ua of uaarr) {
+                add(ua);
+            }
+
+            console.log("");
+            printStats();
+
+        }
+
+        uanet("user-agents_android_500.json", "android");
+        uanet("user-agents_safari_500.json", "safari");
+        uanet("user-agents_chromium_500.json", "chromium");
+        uanet("user-agents_chrome_500.json", "chrome");
+        uanet("user-agents_edge_500.json", "edge");
+    }
+
+    console.log("");
+    console.log("");
+    console.log("Bad items");
+    console.log("--------------------------------------");
+
+    add("Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30");
+    add("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.132 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.126 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36")
+
+    console.log("");
+    printStats();
+
     debug = true;
-    
+
     console.log("");
     console.log("");
     console.log("Showing result");
