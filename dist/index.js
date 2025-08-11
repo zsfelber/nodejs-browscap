@@ -56,6 +56,7 @@ let printInits = true;
 let debug = false;
 let testIntegrity = false;
 let saveBodyRecords = false;
+const CRITICAL_COMPLEXITY_MS_LIMIT = 1000;
 let savedBodyRecords;
 function reversedString(input) {
     let r = input.split('').reverse().join('');
@@ -91,6 +92,27 @@ function extractSingleFileFromZip(zipPath, outFilePath, entryName, update = true
     }
     console.log("WARN Entry not found: ", entryName, " in:", zipPath);
     return false;
+}
+function extractAllFilesFromZip(zipPath, outPath, update = true) {
+    zipPath = path.resolve(zipPath);
+    outPath = path.resolve(outPath);
+    let zip = new adm_zip_1.default(zipPath);
+    let zipEntries = zip.getEntries();
+    for (let zipEntry of zipEntries.values()) {
+        let outFilePath = path.join(outPath, zipEntry.entryName);
+        let curfilesz = 0;
+        if (update && fs.existsSync(outFilePath)) {
+            curfilesz = fs.statSync(outFilePath).size;
+        }
+        if (!update || zipEntry.header.size !== curfilesz) {
+            //console.log("compressedSize !== curfilesz ",zipEntry.header.compressedSize,"!==",curfilesz);
+            console.log("Extracting ", zipEntry.entryName, "...");
+            fs.writeFileSync(outFilePath, zipEntry.getData());
+        }
+        else {
+            console.log("Output file (of proper size) is present already:", outFilePath);
+        }
+    }
 }
 class BrowscapMatcherNode {
     constructor(root, text) {
@@ -212,6 +234,10 @@ class ParsedBrowscapMatcher {
         for (let e of es) {
             let bodyRecord = JSON.parse(e[1]);
             replaceUnknown(bodyRecord);
+            if (bodyRecord.PropertyName === "*") {
+                // omit default browser rule with no properties
+                continue;
+            }
             bodyRecord.PropertyName = e[0];
             if (bodyRecord.Platform) {
                 bodyRecord.Platform_Kind = exports.PlatformKinds[bodyRecord.Platform];
@@ -542,23 +568,36 @@ class BrowscapMatcherGroup {
         this.endPosition = this.positionalFragments.sample.length;
     }
     match() {
+        let start = Date.now();
         // 2
         // walk through runtime and model pattern trees, their intersection is the result
-        this.traversePatternAndSampleTree(this.patternTreeRoot, 0, this.starbefore);
+        try {
+            this.traversePatternAndSampleTree(start, this.patternTreeRoot, 0, this.starbefore);
+        }
+        catch (e) {
+            console.log(e);
+            if (e === "CRITICAL_COMPLEXITY_MS_LIMIT reached") {
+                console.log("CRITICAL_COMPLEXITY_MS_LIMIT:", CRITICAL_COMPLEXITY_MS_LIMIT);
+            }
+            throw e;
+        }
     }
-    traversePatternAndSampleTree(modelFragmNode, startPosition, starBefore = false) {
+    traversePatternAndSampleTree(start, modelFragmNode, startPosition, starBefore = false) {
+        if (Date.now() - start > CRITICAL_COMPLEXITY_MS_LIMIT) {
+            throw "CRITICAL_COMPLEXITY_MS_LIMIT reached";
+        }
         let found = false;
         if (starBefore) {
             for (let pos = startPosition; pos < this.endPosition; ++pos) {
-                found = this.traversePatternAndSampleTreeFromPos(modelFragmNode, pos) || found;
+                found = this.traversePatternAndSampleTreeFromPos(start, modelFragmNode, pos) || found;
             }
         }
         else {
-            found = this.traversePatternAndSampleTreeFromPos(modelFragmNode, startPosition);
+            found = this.traversePatternAndSampleTreeFromPos(start, modelFragmNode, startPosition);
         }
         return found;
     }
-    traversePatternAndSampleTreeFromPos(modelFragmNode, startPosition) {
+    traversePatternAndSampleTreeFromPos(start, modelFragmNode, startPosition) {
         let found = false;
         let fs = 0;
         let currentSet = this.positionalFragments.positionalBrowscapCharMatchSets[startPosition];
@@ -578,7 +617,7 @@ class BrowscapMatcherGroup {
                             found = true;
                         }
                     }
-                    found = this.traversePatternAndSampleTree(modelNext, nextStartPos, true) || found;
+                    found = this.traversePatternAndSampleTree(start, modelNext, nextStartPos, true) || found;
                 }
                 else {
                     //debug
@@ -1020,6 +1059,42 @@ async function testBrowscap() {
         console.log("");
         printStats();
     }
+    {
+        extractAllFilesFromZip(__dirname + "/../data/test/user-agents-net-test.zip", __dirname + "/../data/test");
+        function uanet(curJson, code) {
+            let uaarr = loadJSONSync(__dirname + "/../data/test/" + curJson);
+            console.log("");
+            console.log("");
+            console.log(`user-agents-net-${code}`);
+            console.log("--------------------------------------");
+            for (let ua of uaarr) {
+                add(ua);
+            }
+            console.log("");
+            printStats();
+        }
+        uanet("user-agents_android_500.json", "android");
+        uanet("user-agents_safari_500.json", "safari");
+        uanet("user-agents_chromium_500.json", "chromium");
+        uanet("user-agents_chrome_500.json", "chrome");
+        uanet("user-agents_edge_500.json", "edge");
+    }
+    console.log("");
+    console.log("");
+    console.log("Too long items");
+    console.log("--------------------------------------");
+    try {
+        add("Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30] [Mozilla/5.0 (Linux; U; Android 4.0.3; en-gb; KFTT Build/IML74K) AppleWebKit/534.30 (KHTML  like Gecko) Version/4.0 Mobile Safari/534.30");
+    }
+    catch (e) {
+    }
+    try {
+        add("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.132 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.126 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/63.0.3239.84 Chrome/63.0.3239.84 Safari/537.36 Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36");
+    }
+    catch (e) {
+    }
+    console.log("");
+    printStats();
     debug = true;
     console.log("");
     console.log("");
