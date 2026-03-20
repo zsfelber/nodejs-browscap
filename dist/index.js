@@ -1,52 +1,8 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BrowscapMatchResult = exports.ParsedBrowscapMatcher = exports.PlatformKinds = void 0;
-exports.findBrowscapRecords = findBrowscapRecords;
-exports.initializeDataFiles = initializeDataFiles;
-exports.initializeDatabase = initializeDatabase;
-exports.uninitializeDatabase = uninitializeDatabase;
-exports.testBrowscap = testBrowscap;
-const fs = __importStar(require("fs"));
-const path = __importStar(require("path"));
-const tree_dump_1 = require("tree-dump");
-const process_1 = require("process");
-const adm_zip_1 = __importDefault(require("adm-zip"));
+import * as fs from 'fs';
+import * as path from 'path';
+import { printTree } from 'tree-dump';
+import { argv } from 'process';
+import AdmZip from "adm-zip";
 //for type:"module"
 //import { fileURLToPath } from 'url';
 //import { dirname } from 'path';
@@ -71,7 +27,7 @@ function loadJSONSync(filePath) {
 function extractSingleFileFromZip(zipPath, outFilePath, entryName, update = true) {
     zipPath = path.resolve(zipPath);
     outFilePath = path.resolve(outFilePath);
-    let zip = new adm_zip_1.default(zipPath);
+    let zip = new AdmZip(zipPath);
     let zipEntries = zip.getEntries();
     let curfilesz = 0;
     if (update && fs.existsSync(outFilePath)) {
@@ -96,7 +52,7 @@ function extractSingleFileFromZip(zipPath, outFilePath, entryName, update = true
 function extractAllFilesFromZip(zipPath, outPath, update = true) {
     zipPath = path.resolve(zipPath);
     outPath = path.resolve(outPath);
-    let zip = new adm_zip_1.default(zipPath);
+    let zip = new AdmZip(zipPath);
     let zipEntries = zip.getEntries();
     for (let zipEntry of zipEntries.values()) {
         let outFilePath = path.join(outPath, zipEntry.entryName);
@@ -168,14 +124,14 @@ class BrowscapMatcherNode {
         childmps = Array.from(this.nextNodes.values()).map(node => {
             return node.treeDump.bind(node);
         });
-        let result = str + (0, tree_dump_1.printTree)(tab, childmps);
+        let result = str + printTree(tab, childmps);
         return result;
     }
     get cnttxt() {
         return `${this.totalNodesWithResult}/${this.totalNodes}`;
     }
 }
-exports.PlatformKinds = {
+export const PlatformKinds = {
     "AIX": "Unix", "Amiga OS": "OtherPC", "Android for GoogleTV": "Android", "Android": "Android", "Asha": "Android",
     "ATV OS X": "MacOS", "Bada": "OtherLinuxMobile", "BeOS": "OtherPC", "Brew MP": "Device", "Brew": "Device", "BSD": "Unix",
     "CellOS": "Device", "CentOS": "Linux", "Chromecast OS": "Device", "ChromeOS": "OtherLinuxMobile", "CygWin": "EmulationVirtual",
@@ -198,7 +154,7 @@ exports.PlatformKinds = {
     "Xbox 360": "Console", "Xbox OS (Mobile View)": "Console", "Xbox OS 10 (Mobile View)": "Console",
     "Xbox OS 10": "Console", "Xbox OS": "Console", "Xubuntu": "Linux"
 };
-class ParsedBrowscapMatcher {
+export class ParsedBrowscapMatcher {
     constructor(replaceUnknownStrToUndefined) {
         this.patternTreeRootNoAsterix = new BrowscapMatcherNode(null, "");
         this.reversePatternTreeRootNoAsterix = new BrowscapMatcherNode(null, "");
@@ -240,7 +196,7 @@ class ParsedBrowscapMatcher {
             }
             bodyRecord.PropertyName = e[0];
             if (bodyRecord.Platform) {
-                bodyRecord.Platform_Kind = exports.PlatformKinds[bodyRecord.Platform];
+                bodyRecord.Platform_Kind = PlatformKinds[bodyRecord.Platform];
                 if (!bodyRecord.Platform_Kind) {
                     console.log("ERROR Platform:", bodyRecord.Platform, "Platform_Kind:", bodyRecord.Platform_Kind);
                     process.exit(1);
@@ -361,7 +317,6 @@ class ParsedBrowscapMatcher {
         return result;
     }
 }
-exports.ParsedBrowscapMatcher = ParsedBrowscapMatcher;
 class PositionalBrowscapCharMatchSet {
     constructor(parsedBrowscapMatcher, fragmentTreeRoot, startPosition) {
         this.matchedFragments = new Map();
@@ -483,7 +438,7 @@ function compressObjectIntoTree(vs0, uniqueProps, results, primaryKey, groupArra
         results.set(id, first);
     } while (vs0.length);
 }
-class BrowscapMatchResult {
+export class BrowscapMatchResult {
     constructor() {
         this._results = new Map();
     }
@@ -557,7 +512,6 @@ class BrowscapMatchResult {
         return this._compressedResults;
     }
 }
-exports.BrowscapMatchResult = BrowscapMatchResult;
 class BrowscapMatcherGroup {
     constructor(parsedBrowscapMatcher, patternTreeRoot, positionalFragments, starbefore = false) {
         this.results = new BrowscapMatchResult();
@@ -702,7 +656,7 @@ var _parsedBrowscapMatcher;
 /**
  * Matches sample against pattern database records. It initializes internal database automatically if was not yet done.
  */
-function findBrowscapRecords(sample) {
+export function findBrowscapRecords(sample) {
     initializeDatabase(true);
     if (debug)
         console.log("Sample:", sample);
@@ -717,7 +671,7 @@ function findBrowscapRecords(sample) {
  * Extract missing data files from ZIP archives. (Otherwise being done automatically.)
  * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-function initializeDataFiles(replaceUnknownStrToUndefined = true) {
+export function initializeDataFiles(replaceUnknownStrToUndefined = true) {
     if (!_parsedBrowscapMatcher) {
         _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
@@ -730,7 +684,7 @@ function initializeDataFiles(replaceUnknownStrToUndefined = true) {
  * Loads and initializes internal database and grammar parse trees. (Otherwise being done automatically.)
  * @param replaceUnknownStrToUndefined replace "unknown" strings to javascript undefined in database
  */
-function initializeDatabase(replaceUnknownStrToUndefined = true) {
+export function initializeDatabase(replaceUnknownStrToUndefined = true) {
     if (!_parsedBrowscapMatcher) {
         _parsedBrowscapMatcher = global["parsedBrowscapMatcher"];
     }
@@ -747,7 +701,7 @@ function initializeDatabase(replaceUnknownStrToUndefined = true) {
 /**
  * Deletes references to all preloaded data, marking as target for garbage collector to remove it from heap.
  */
-function uninitializeDatabase(gc = true, warngc = true) {
+export function uninitializeDatabase(gc = true, warngc = true) {
     global["parsedBrowscapMatcher"] = _parsedBrowscapMatcher = undefined;
     if (gc) {
         if (global.gc) {
@@ -762,7 +716,7 @@ function uninitializeDatabase(gc = true, warngc = true) {
 /**
  * Runs tests.
  */
-async function testBrowscap() {
+export async function testBrowscap() {
     console.time('tests');
     saveBodyRecords = true;
     initializeDatabase(true);
@@ -1133,13 +1087,13 @@ async function testBrowscap() {
     // to check consumed memory (3 mins)
     await (sleep(180000));
 }
-if (process_1.argv.indexOf("--initBrowscap") != -1) {
+if (argv.indexOf("--initBrowscap") != -1) {
     initializeDataFiles(true);
 }
-if (process_1.argv.indexOf("--initBrowscapDb") != -1) {
+if (argv.indexOf("--initBrowscapDb") != -1) {
     initializeDatabase(true);
 }
-if (process_1.argv.indexOf("--testBrowscap") != -1) {
+if (argv.indexOf("--testBrowscap") != -1) {
     testBrowscap();
 }
 //# sourceMappingURL=index.js.map
