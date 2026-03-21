@@ -28,7 +28,7 @@
     "test": "node --expose-gc -r esbuild-register src/index.ts --testBrowscap",
     "tsdoc": "tsdoc --src=src/index.ts --types",
     "build": "npm dedupe; npx tsc; copyfiles -u 1 './src/**/*.{json,txt,md,class,sh}' dist",
-    "buildAll": "npm install; npx tsc; copyfiles -u 1 './src/**/*.{json,txt,md,class,sh}' dist"
+    "buildAll": "npm install; npm dedupe; npx tsc; copyfiles -u 1 './src/**/*.{json,txt,md,class,sh}' dist"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
